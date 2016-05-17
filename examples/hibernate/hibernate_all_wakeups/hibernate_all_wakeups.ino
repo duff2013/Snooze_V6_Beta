@@ -1,19 +1,11 @@
 /***************************************
- * hibernate with pushbutton w/ pullup.
- * expect IDD of around 15uA for (Teensy 3.x)
- * and IDD of around 4uA (Teensy LC). Must
- * uncomment #define USE_HIBERNATE in Snooze.h.
- *
- * While hibernating you will not be able
- * to reprogram so use deepSleep until you
- * have sleeping working the way you want.
- *
- * If having trouble reprogramming while
- * using hibernate:
- * 1. Unplug USB, and, or disconnect power.
- * 2. While powered down hold reprogram button.
- * 3. Plug in USB, and, or apply power.
- * 4. Release program button, should program now
+ * This shows all the wakeups for hibernate
+ * Expect IDD of  around 15uA (Teensy 3.x)
+ * and IDD of around 6uA for (Teensy LC).
+ * 
+ * Hibernate puts the USB regualtor into
+ * a low power state which will effect
+ * Teensy 3.0/3.1/LC 3.3v output.
  ****************************************/
 #include <Snooze.h>
 // Load drivers
@@ -29,7 +21,7 @@ SnoozeAlarm	alarm;
 SnoozeBlock config(touch, compare, digital, timer);
 
 #ifdef KINETISK
-SnoozeBlock config_alt(touch, timer, compare, digital, alarm);
+SnoozeBlock config_alt(touch, compare, digital, alarm);
 #endif
 
 void setup() {
@@ -95,11 +87,11 @@ void setup() {
 
 void loop() {
     /********************************************************
-     * feed the sleep function its wakeup parameters. Then go
-     * to deepSleep. Config_alt replaces timer with an alarm.
+     * feed the sleep function its wakeup parameters. Then go 
+     * to hibernate. Config_alt replaces timer with an alarm.
      ********************************************************/
     int who = Snooze.hibernate( config );// return module that woke processor
-    //int who = Snooze.deepSleep( config_alt );// return module that woke processor
+    //int who = Snooze.hibernate( config_alt );// return module that woke processor
     
     if (who == 21) { // pin wakeup source is its pin value
         for (int i = 0; i < 1; i++) {

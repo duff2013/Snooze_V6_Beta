@@ -8,6 +8,7 @@
  it as an OUTPUT and blinks the LED before and after going to sleep.
  ********************************************************************/
 #include <Snooze.h>
+#include <wiring.h>
 #include "SnoozeSkeletonDriverClass.h"
 
 // Load drivers

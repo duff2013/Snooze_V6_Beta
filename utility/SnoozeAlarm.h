@@ -31,8 +31,6 @@ public:
     {
         isDriver = true;
     }
-    //void configure(  uint8_t hours, uint8_t minutes, uint8_t seconds );
     void setAlarm( uint8_t hours, uint8_t minutes, uint8_t seconds );
 };
-
 #endif /* defined(SnoozeAlarm_h) */

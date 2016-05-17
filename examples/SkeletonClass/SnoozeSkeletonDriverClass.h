@@ -2,6 +2,7 @@
 #define SnoozeSkeletonDriverClass_h
 
 #include "SnoozeBlock.h"
+#include "Arduino.h"
 
 class SnoozeSkeletonDriverClass : public SnoozeBlock {
 private:
@@ -12,7 +13,7 @@ private:
     int digital_pin;
     
 public:
-    SnoozeSkeletonDriverClass(void) { }
+    SnoozeSkeletonDriverClass(void) { isDriver = true; }
     void configure( int pin );
 };
 

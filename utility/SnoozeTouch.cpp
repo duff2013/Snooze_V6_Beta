@@ -30,13 +30,20 @@ static const uint8_t tsi_pins[] = {
     255, 255,  14,  15, 255, 255, 255
 };
 #endif
-
-void SnoozeTouch::pinMode ( int _pin, int thresh ) {
+/*******************************************************************************
+ *  <#Description#>
+ *
+ *  @param _pin   <#_pin description#>
+ *  @param thresh <#thresh description#>
+ *******************************************************************************/
+void SnoozeTouch::pinMode( int _pin, int thresh ) {
     isUsed = true;
     pin = _pin;
     threshold = thresh;
 }
-
+/*******************************************************************************
+ *  <#Description#>
+ *******************************************************************************/
 void SnoozeTouch::disableDriver( void ) {
     if ( mode == RUN_LP || mode == VLPW || mode == RUN_LP ) return;
     uint8_t _pin = pin;
@@ -52,7 +59,9 @@ void SnoozeTouch::disableDriver( void ) {
     
     if ( !SIM_SCGC5_clock_active ) SIM_SCGC5 &= ~SIM_SCGC5_TSI;
 }
-
+/*******************************************************************************
+ *  <#Description#>
+ *******************************************************************************/
 void SnoozeTouch::enableDriver( void ) {
     if ( mode == RUN_LP || mode == VLPW ) return;
     uint8_t _pin = pin;
@@ -123,11 +132,15 @@ void SnoozeTouch::enableDriver( void ) {
     LPTMR0_CSR = LPTMR_CSR_TEN | LPTMR_CSR_TCF;
 #endif
 }
-
+/*******************************************************************************
+ *  <#Description#>
+ *******************************************************************************/
 void SnoozeTouch::clearIsrFlags( void ) {
     isr( );
 }
-
+/*******************************************************************************
+ *  <#Description#>
+ *******************************************************************************/
 void SnoozeTouch::isr( void ) {
     if ( !( SIM_SCGC5 & SIM_SCGC5_TSI ) ) return;
     TSI0_GENCS = TSI_GENCS_OUTRGF | TSI_GENCS_EOSF;

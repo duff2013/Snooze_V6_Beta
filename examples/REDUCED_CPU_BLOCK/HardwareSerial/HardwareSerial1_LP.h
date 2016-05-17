@@ -1,5 +1,7 @@
 //
-//  HardwareSerial1_LP.h
+//  Example Driver Class for the REDUCED_CPU_BLOCK.
+//  This Class reconfigures Serial1 to work at 2 MHz cpu
+//  and back to F_CPU. 
 //
 
 #define BAUD2DIV_2MHZ(baud) (((TWO_MHZ * 2) + ((baud) >> 1)) / (baud))

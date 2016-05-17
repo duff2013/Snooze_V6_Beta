@@ -35,5 +35,4 @@ public:
     }
     void setTimer( uint16_t newPeriod );
 };
-
 #endif /* defined(SnoozeTimer_h) */

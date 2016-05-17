@@ -1,7 +1,10 @@
 /***************************************
- * This shows all the wakeups for deepSleep 
- * Expect IDD of  around 230uA (Teensy 3.x) 
- * and IDD of around 150uA for (Teensy LC).
+ * This shows all the wakeups for sleep
+ * Expect IDD of  around 1.2mA (Teensy 3.x)
+ * and IDD of around 900uA for (Teensy LC).
+ *
+ * Sleep is the most flexable and any
+ * interrupt can wake the processor.
  ****************************************/
 #include <Snooze.h>
 // Load drivers
@@ -84,9 +87,9 @@ void setup() {
 void loop() {
     /********************************************************
      * feed the sleep function its wakeup parameters. Then go 
-     * to deepSleep. Config_alt replaces timer with an alarm.
+     * to sleep. Config_alt replaces timer with an alarm.
      ********************************************************/
-    int who = Snooze.deepSleep( config );// return module that woke processor
+    int who = Snooze.sleep( config );// return module that woke processor
     //int who = Snooze.deepSleep( config_alt );// return module that woke processor
     
     if (who == 21) { // pin wakeup source is its pin value

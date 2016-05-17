@@ -17,19 +17,19 @@
 /********************************************************************/
 void ( * SnoozeTimer::return_lptmr_irq ) ( void );
 
-/**
+/*******************************************************************************
  *  Set The Period for the Low Power Timer to wake the processor
  *
  *  @param newPeriod period in milliseconds
- */
+ *******************************************************************************/
 void SnoozeTimer::setTimer( uint16_t newPeriod ) {
     isUsed = true;
     period = newPeriod;
 }
 
-/**
+/*******************************************************************************
  *  Disables low power timer and returns registers and clock to previous state
- */
+ *******************************************************************************/
 void SnoozeTimer::disableDriver( void ) {
     LPTMR0_CSR = 0;
     if ( mode == RUN_LP ) return;
@@ -47,9 +47,9 @@ void SnoozeTimer::disableDriver( void ) {
     if ( !SIM_SCGC5_clock_active ) SIM_SCGC5 &= ~SIM_SCGC5_LPTIMER;
 }
 
-/**
+/*******************************************************************************
  *  Enables low power timer and saves regiater and clock state
- */
+ *******************************************************************************/
 void SnoozeTimer::enableDriver( void ) {
     if ( mode == RUN_LP ) return;
     if ( mode == VLPW || mode == VLPS ) {
@@ -72,7 +72,7 @@ void SnoozeTimer::enableDriver( void ) {
     CSR = LPTMR0_CSR;
     
     LPTMR0_CSR = 0;
-    if ( period <= 1000 ) {
+    if ( period <= 50 ) {
 #if defined(KINETISK)
         OSC_clock_active = true;
         if ( !( OSC0_CR & OSC_ERCLKEN ) ) {
@@ -98,16 +98,16 @@ void SnoozeTimer::enableDriver( void ) {
     LPTMR0_CSR = LPTMR_CSR_TEN | LPTMR_CSR_TIE | LPTMR_CSR_TCF;
 }
 
-/**
+/*******************************************************************************
  *  clears low power timer flags called from sleep llwu wakeup
- */
+ *******************************************************************************/
 void SnoozeTimer::clearIsrFlags( void ) {
     isr( );
 }
 
-/**
+/*******************************************************************************
  *  Low power timer isr
- */
+ *******************************************************************************/
 void SnoozeTimer::isr( void ) {
     if ( !( SIM_SCGC5 & SIM_SCGC5_LPTIMER ) ) return;
     LPTMR0_CSR = LPTMR_CSR_TCF;

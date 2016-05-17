@@ -76,7 +76,7 @@ int SnoozeClass::deepSleep( SNOOZE_BLOCK, SLEEP_MODE mode ) {
     llwu_set( );
     switch ( mode ) {
         case LLS:
-            //lls( );
+            lls( );
             break;
         case VLLS3:
             vlls3( );

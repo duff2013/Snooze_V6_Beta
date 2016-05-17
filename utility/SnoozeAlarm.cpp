@@ -9,18 +9,32 @@
 #include "SnoozeAlarm.h"
 #include "wake.h"
 #include "TimeLib.h"
-/********************************************************************/
+
 #define RTC_IER_TAIE_MASK 0x4u
-/********************************************************************/
+/*******************************************************************************
+ *  <#Description#>
+ *
+ *  @return <#return value description#>
+ *******************************************************************************/
 time_t rtc_set_sync_provider( void ) {
     return Teensy3Clock.get( );
 }
 
+/*******************************************************************************
+ *  <#Description#>
+ *
+ *  @param hours   <#hours description#>
+ *  @param minutes <#minutes description#>
+ *  @param seconds <#seconds description#>
+ *******************************************************************************/
 void SnoozeAlarm::setAlarm(  uint8_t hours, uint8_t minutes, uint8_t seconds ) {
     isUsed = true;
     alarm = hours*3600 + minutes*60 + seconds;
 }
 
+/*******************************************************************************
+ *  <#Description#>
+ *******************************************************************************/
 void SnoozeAlarm::disableDriver( void ) {
     if ( mode == RUN_LP ) { return; }
     if ( mode == VLPW || mode == VLPS ) {
@@ -31,9 +45,12 @@ void SnoozeAlarm::disableDriver( void ) {
         __enable_irq( );
     }
     RTC_IER = IER;
-    setSyncProvider( rtc_set_sync_provider );
+    //setSyncProvider( rtc_set_sync_provider );
 }
 
+/*******************************************************************************
+ *  <#Description#>
+ *******************************************************************************/
 void SnoozeAlarm::enableDriver( void ) {
     if ( mode == RUN_LP ) { return; }
     if ( mode == VLPW || mode == VLPS ) {
@@ -63,10 +80,16 @@ void SnoozeAlarm::enableDriver( void ) {
     RTC_IER = RTC_IER_TAIE_MASK;
 }
 
+/*******************************************************************************
+ *  <#Description#>
+ *******************************************************************************/
 void SnoozeAlarm::clearIsrFlags( void ) {
     isr( );
 }
 
+/*******************************************************************************
+ *  <#Description#>
+ *******************************************************************************/
 void SnoozeAlarm::isr( void ) {
     if ( !( SIM_SCGC6 & SIM_SCGC6_RTC ) ) return;
     RTC_TAR = RTC_TSR+1;

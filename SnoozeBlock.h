@@ -255,11 +255,6 @@ public:
                 u = p;
                 index++;
             }
-            
-            p = SnoozeBlock::root_block[local_block];
-            for ( ; p; p = p->next_block[local_block] ) {
-                Serial.printf("p4: %p\n", p);
-            }
             return *this;
         }
         
@@ -282,11 +277,6 @@ public:
                 index++;
             }
         }
-        
-        SnoozeBlock *p = SnoozeBlock::root_block[local_block];
-        for ( ; p; p = p->next_block[local_block] ) {
-            Serial.printf("p: %p\n", p);
-        }
     }
     
     /********************************************************************************************
@@ -302,9 +292,6 @@ public:
         int b = local_block;
         if ( local_block == -1 ) local_block = global_block_count++;
         
-        Serial.printf("before: %i | after: %i | global: %i\n", b, local_block, global_block_count);
-        delay(100);
-        
         if ( rhs.isDriver ) {
             SnoozeBlock *p = SnoozeBlock::root_block[local_block];
             
@@ -313,7 +300,6 @@ public:
             uint8_t idx = local_block;
             p = SnoozeBlock::root_block[idx];
             for ( ; p->next_block[idx]; p = p->next_block[idx] );
-            digitalWrite(LED_BUILTIN, HIGH);
             p->next_block[idx] = ( SnoozeBlock * )&rhs;
             next_block[idx] = NULL;
             return *this;
@@ -346,7 +332,7 @@ public:
      *  call drivers enable functions
      ********************************************************************************************/
     virtual void enableDriver ( void ) {
-        //if ( local_block == -1 ) return;
+        if ( local_block == -1 ) return;
         current_block = local_block;
         source = -1;
         SnoozeBlock *p = SnoozeBlock::root_block[local_block];
@@ -357,7 +343,7 @@ public:
      *  call drivers disable functions
      ********************************************************************************************/
     virtual void disableDriver ( void ) {
-        //if ( local_block == -1 ) return;
+        if ( local_block == -1 ) return;
         SnoozeBlock *p = SnoozeBlock::root_block[local_block];
         reverseList( p, local_block );
         
@@ -377,13 +363,6 @@ public:
      *
      *  @return true
      ********************************************************************************************/
-    uint8_t set_runlp( void ) __attribute__((always_inline, unused)) {
-        start_lptmr_systick( );
-        pee_blpi( );
-        stop_lptmr_systick( 1999 );
-        enter_vlpr( );
-        return 1;
-    }
     uint8_t set_runlp( SNOOZE_BLOCK ) __attribute__((always_inline, unused)) {
         SnoozeBlock *p = &configuration;
         p->mode = RUN_LP;
@@ -402,14 +381,6 @@ public:
      *
      *  @return false
      ********************************************************************************************/
-    uint8_t set_run( void ) __attribute__((always_inline, unused)) {
-        exit_vlpr( );
-        start_lptmr_systick( );
-        blpi_pee( );
-        stop_lptmr_systick( ( F_CPU / 1000 ) - 1 );
-        return 0;
-    }
-    
     uint8_t set_run( SNOOZE_BLOCK ) __attribute__((always_inline, unused)) {
         SnoozeBlock *p = &configuration;
         p->mode = RUN;
@@ -426,6 +397,4 @@ public:
     volatile bool isUsed;
     bool isDriver;
 };
-
-//SnoozeBlock c;
 #endif /* defined(SnoozeBlock_h) */

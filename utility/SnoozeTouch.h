@@ -33,8 +33,6 @@ public:
     SnoozeTouch( void ) : pin( 0x03 ) {
         isDriver = true;
     }
-    
     void pinMode( int _pin, int thresh );
 };
-
 #endif /* defined(SnoozeTouch_h) */

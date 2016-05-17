@@ -5,34 +5,30 @@
  * functionality at F_CPU to work at 2 MHz.
  ****************************************/
 #include <Snooze.h>
+#include "delay.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-    void delay_lp(uint32_t ms);
-#ifdef __cplusplus
-}
-#endif
+// REDUCED_CPU_BLOCK needs a SnoozeBlock passed to it
+// so we pass a dummy SnoozeBlock with no Drivers installed.
+SnoozeBlock dummyConfig;
 
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
 }
 
-
 void loop() {
-    SOS(); // F_CPU
-    /*
-     * code inside this macro
-     * will run at 2 MHz.
-     * code outside will run
-     * at whatever F_CPU you
-     * compiled at.
-     */
-    REDUCED_CPU_BLOCK() {
-        SOS_LP();// 2 MHz
+    SOS(); // Blink sos at F_CPU
+
+    REDUCED_CPU_BLOCK(dummyConfig) {
+        /*
+         * code inside this macro
+         * will run at 2 MHz cpu.
+         * code outside will run
+         * at whatever speed you
+         * compiled at.
+         */
+        SOS_LP();// Blink sos at 2 MHz
     }
 }
-
 // SOS from http://www.thejamesjones.com/blog/make-your-arduino-blink-sos
 void SOS() {
     digitalWrite(LED_BUILTIN, HIGH);   // turn the LED_BUILTIN on (HIGH is the voltage level)
@@ -127,41 +123,3 @@ void SOS_LP() {
     digitalWrite(LED_BUILTIN, LOW);    // turn the LED_BUILTIN off by making the voltage LOW
     delay_lp(1000);               // wait for a second
 }
-
-//*************************************Dynamic Core C-Linkage**************************************
-#ifdef __cplusplus
-extern "C" {
-#endif
-    //*******************low power micros @ 2 MHZ*************************
-    uint32_t micros_lp(void) {
-        uint32_t count, current, istatus;
-        
-        __disable_irq();
-        current = SYST_CVR;
-        count = systick_millis_count;
-        istatus = SCB_ICSR; // bit 26 indicates if systick exception pending
-        __enable_irq();
-        
-        if ((istatus & SCB_ICSR_PENDSTSET) && current > 50) count++;
-        current = ((TWO_MHZ / 1000) - 1) - current;
-        return count * 1000 + current / (TWO_MHZ / 1000000);
-    }
-    
-    //*******************low power delay_lp @ 2 MHZ************************
-    void delay_lp(uint32_t ms) {
-        uint32_t start = micros_lp();
-        
-        if (ms > 0) {
-            while (1) {
-                if ((micros_lp() - start) >= 1000) {
-                    ms--;
-                    if (ms == 0) return;
-                    start += 1000;
-                }
-                yield();
-            }
-        }
-    }
-#ifdef __cplusplus
-}
-#endif

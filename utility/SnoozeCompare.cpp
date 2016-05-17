@@ -8,7 +8,13 @@
 #include "Arduino.h"
 #include "SnoozeCompare.h"
 #include "wake.h"
-
+/*******************************************************************************
+ *  <#Description#>
+ *
+ *  @param _pin  <#_pin description#>
+ *  @param _type <#_type description#>
+ *  @param val   <#val description#>
+ *******************************************************************************/
 void SnoozeCompare::pinMode( int _pin, int _type, float val ) {
     isUsed = true;
     pin = _pin;
@@ -16,6 +22,9 @@ void SnoozeCompare::pinMode( int _pin, int _type, float val ) {
     threshold_crossing = val;
 }
 
+/*******************************************************************************
+ *  <#Description#>
+ *******************************************************************************/
 void SnoozeCompare::disableDriver( void ) {
     if ( mode == RUN_LP ) { return; }
     if ( mode == VLPW || mode == VLPS ) {
@@ -37,6 +46,9 @@ void SnoozeCompare::disableDriver( void ) {
     SIM_SCGC4 &= ~SIM_SCGC4_CMP;
 }
 
+/*******************************************************************************
+ *  <#Description#>
+ *******************************************************************************/
 void SnoozeCompare::enableDriver( void ) {
     if ( mode == RUN_LP ) { return; }
     if ( mode == VLPW || mode == VLPS ) {
@@ -89,10 +101,16 @@ void SnoozeCompare::enableDriver( void ) {
     //LPTMR0_CSR = LPTMR_CSR_TEN | LPTMR_CSR_TCF;
 }
 
+/*******************************************************************************
+ *  <#Description#>
+ *******************************************************************************/
 void SnoozeCompare::clearIsrFlags( void ) {
     isr( );
 }
 
+/*******************************************************************************
+ *  <#Description#>
+ *******************************************************************************/
 void SnoozeCompare::isr( void ) {
     if ( !( SIM_SCGC4 & SIM_SCGC4_CMP ) ) return;
     if ( CMP0_SCR & CMP_SCR_CFF ) CMP0_SCR = CMP_SCR_CFF;

@@ -11,6 +11,15 @@
 
 uint64_t SnoozeDigital::isr_pin = 0;
 
+/*******************************************************************************
+ *  <#Description#>
+ *
+ *  @param _pin <#_pin description#>
+ *  @param mode <#mode description#>
+ *  @param type <#type description#>
+ *
+ *  @return <#return value description#>
+ *******************************************************************************/
 int SnoozeDigital::pinMode( int _pin, int mode, int type ) {
     if ( _pin >= CORE_NUM_DIGITAL ) return -1;
     isUsed = true;
@@ -26,6 +35,9 @@ int SnoozeDigital::pinMode( int _pin, int mode, int type ) {
     return _pin;
 }
 
+/*******************************************************************************
+ *  <#Description#>
+ *******************************************************************************/
 void SnoozeDigital::enableDriver( void ) {
     if ( mode == RUN_LP ) { return; }
 #if defined(KINETISK)
@@ -156,7 +168,10 @@ void SnoozeDigital::enableDriver( void ) {
     }
 #endif
 }
-/*******************************************************************************************/
+
+/*******************************************************************************
+ *  <#Description#>
+ *******************************************************************************/
 void SnoozeDigital::disableDriver( void ) {
     if ( mode == RUN_LP ) { return; }
 #if defined(KINETISK)
@@ -282,11 +297,17 @@ void SnoozeDigital::disableDriver( void ) {
 #endif
     }
 }
-/*******************************************************************************************/
+
+/*******************************************************************************
+ *  <#Description#>
+ *******************************************************************************/
 void SnoozeDigital::clearIsrFlags( void ) {
     isr( );
 }
-/*******************************************************************************************/
+
+/*******************************************************************************
+ *  <#Description#>
+ *******************************************************************************/
 void SnoozeDigital::isr( void ) {
     digitalWriteFast(LED_BUILTIN, HIGH);
     uint32_t isfr_a = PORTA_ISFR;
@@ -356,7 +377,13 @@ void SnoozeDigital::isr( void ) {
     else if ( isfr_e & CORE_PIN31_BITMASK ) source = 31;
 #endif
 }
-/*******************************************************************************************/
+
+/*******************************************************************************
+ *  <#Description#>
+ *
+ *  @param pin  <#pin description#>
+ *  @param mode <#mode description#>
+ *******************************************************************************/
 void SnoozeDigital::attachDigitalInterrupt( uint8_t pin, int mode ) {
     volatile uint32_t *config;
     uint32_t cfg, mask;
@@ -381,7 +408,12 @@ void SnoozeDigital::attachDigitalInterrupt( uint8_t pin, int mode ) {
     __enable_irq( );
     
 }
-/*******************************************************************************************/
+
+/*******************************************************************************
+ *  <#Description#>
+ *
+ *  @param pin <#pin description#>
+ *******************************************************************************/
 void SnoozeDigital::detachDigitalInterrupt( uint8_t pin ) {
     volatile uint32_t *config;
     __disable_irq( );

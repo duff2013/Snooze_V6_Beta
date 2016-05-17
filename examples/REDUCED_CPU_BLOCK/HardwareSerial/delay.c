@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #define TWO_MHZ 2000000
-
+// delay and micros for 2 MHz cpu speed
+/***************************************************************************************************/
 uint32_t micros_lp(void) {
   uint32_t count, current, istatus;
 
