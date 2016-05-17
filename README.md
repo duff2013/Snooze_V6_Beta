@@ -1,10 +1,10 @@
-# Snooze V6.0.0 - Beta1
+# Snooze v6.0.0 - Beta1
 
 <h4>The new api allows me to add new functionality and new Teensy's much easier. This is still beta so it might be broken at times. I'll update here once it becomes stable.<br>
 
 The reason for the change is that new Teensy's are in the pipeline and updating this fairly extensive library became to difficult because each new processor introduced has its own set of Low Power functionality. Now the library is divided into three classes:<br>
 ![alt text](https://github.com/duff2013/Snooze_V6_Beta/blob/master/images/Snooze_Class_Layout/Slide1.png "Snooze Class Layout")<br>
-As you can see the Drivers are now separated from the SnoozeBlock Class. Before these drivers where part of the SnoozeBlock which made it difficult to add new functionalities. Each Teensy can now have drivers classes designed specifically for them much easier. Now users have a way to install their own drivers also if they wish. An added benefit is now only the drivers that are installed are called, before all drivers where called just not used if not configured, this should add some performance benefits. 
+As you can see the Drivers are now separated from the SnoozeBlock Class. Before these drivers where part of the SnoozeBlock which made it difficult to add new functionalities. Each Teensy can now have driver classes designed specifically for them much easier. Users can install their own drivers also if they wish. As an added benefit, only the drivers that are installed are called, before all drivers where called just not used if not configured, this should add some performance benefits. 
 <br>
 <br>
 
