@@ -1,6 +1,6 @@
 # Snooze v6.0.0 - Beta1
 
-<h4>The new api. This is still beta so it might be broken at times. I'll update here once it becomes stable.</h4>
+<h4>The new api. This is still beta so it might be broken at times. I'll update here once it becomes stable. Must have Teensyduino 1.29 beta2 installed.</h4>
 
 ---
 For those using v5 of Snooze the reason for the change is that new Teensy's are in the pipeline and updating this fairly extensive library became to difficult because each new processor introduced has its own set of Low Power functionality. Now the library is divided into three classes:<br>
