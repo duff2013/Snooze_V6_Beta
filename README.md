@@ -1,4 +1,4 @@
-# Snooze v6.0.0 - Beta1
+# Snooze v6.0.1 - Beta
 
 <h4>The new api. This is still beta so it might be broken at times. I'll update here once it becomes stable. Must have Teensyduino 1.29 beta2 installed.</h4>
 
