@@ -1,4 +1,29 @@
 /*******************************************************************************
+ Low Power Library for Teensy LC/3.x
+ * Copyright (c) 2014, Colin Duffy https://github.com/duff2013
+ *
+ * Development of this audio library was funded by PJRC.COM, LLC by sales of
+ * Teensy and Audio Adaptor boards.  Please support PJRC's efforts to develop
+ * open source software by purchasing Teensy or other PJRC products.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, development funding notice, and this permission
+ * notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ ********************************************************************************
  *  mcg.c
  *  Teensy3
  *
@@ -176,22 +201,93 @@ void blpi_pee( void ) {
     // wait for MCGOUT to switch over to the external reference clock
     while ( ( MCG_S & MCG_S_CLKST_MASK ) != MCG_S_CLKST( 0x02 ) ) ;
     // configure PLL and system clock dividers
-#if F_CPU == 168000000
-    MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0( 18 ); // config PLL for 168 MHz output
-#elif F_CPU == 144000000
-    MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0( 12 ); // config PLL for 144 MHz output
-#elif F_CPU == 120000000
-    MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0( 6 ); // config PLL for 120 MHz output
-#elif F_CPU == 72000000
-    MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0( 3 ); // config PLL for 72 MHz output
+#if defined(__MK66FX1M0__)
+    #if F_CPU > 120000000
+        SMC_PMCTRL = SMC_PMCTRL_RUNM(3); // enter HSRUN mode
+        while (SMC_PMSTAT != SMC_PMSTAT_HSRUN) ; // wait for HSRUN
+    #endif
+    #if F_CPU == 240000000
+        MCG_C5 = MCG_C5_PRDIV0( 0 );
+        MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0( 14 );
+    #elif F_CPU == 216000000
+        MCG_C5 = MCG_C5_PRDIV0( 0 );
+        MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0( 11 );
+    #elif F_CPU == 192000000
+        MCG_C5 = MCG_C5_PRDIV0( 0 );
+        MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0( 8 );
+    #elif F_CPU == 180000000
+        MCG_C5 = MCG_C5_PRDIV0( 1 );
+        MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0( 29 );
+    #elif F_CPU == 168000000
+        MCG_C5 = MCG_C5_PRDIV0( 0 );
+        MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0( 5 );
+    #elif F_CPU == 144000000
+        MCG_C5 = MCG_C5_PRDIV0( 0 );
+        MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0( 2 );
+    #elif F_CPU == 120000000
+        MCG_C5 = MCG_C5_PRDIV0( 1 );
+        MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0( 14 );
+    #elif F_CPU == 96000000 || F_CPU == 48000000 || F_CPU == 24000000
+        MCG_C5 = MCG_C5_PRDIV0( 1 );
+        MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0( 8 );
+    #elif F_CPU == 72000000
+        MCG_C5 = MCG_C5_PRDIV0( 1 );
+        MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0( 2 );
+    #endif
 #else
-    MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0( 0 ); // config PLL for 96 MHz output
+    #if F_CPU == 72000000
+        MCG_C5 = MCG_C5_PRDIV0( 5 );		 // config PLL input for 16 MHz Crystal / 6 = 2.667 Hz
+    #else
+        MCG_C5 = MCG_C5_PRDIV0( 3 );		 // config PLL input for 16 MHz Crystal / 4 = 4 MHz
+    #endif
+    #if F_CPU == 168000000
+        MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0( 18 ); // config PLL for 168 MHz output
+    #elif F_CPU == 144000000
+        MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0( 12 ); // config PLL for 144 MHz output
+    #elif F_CPU == 120000000
+        MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0( 6 ); // config PLL for 120 MHz output
+    #elif F_CPU == 72000000
+        MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0( 3 ); // config PLL for 72 MHz output
+    #elif F_CPU == 96000000 || F_CPU == 48000000 || F_CPU == 24000000
+        MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0( 0 ); // config PLL for 96 MHz output
+    #endif
 #endif
     while ( !(MCG_S & MCG_S_PLLST) ) ;
     while ( !(MCG_S & MCG_S_LOCK0) ) ;
     // configure the clock dividers back again before switching to the PLL to
     // ensure the system clock speeds are in spec.
-#if F_CPU == 168000000
+#if F_CPU == 240000000
+    #if F_BUS == 60000000
+        SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 0 ) | SIM_CLKDIV1_OUTDIV2( 3 ) | SIM_CLKDIV1_OUTDIV4( 7 );
+    #elif F_BUS == 80000000
+        SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 0 ) | SIM_CLKDIV1_OUTDIV2( 2 ) | SIM_CLKDIV1_OUTDIV4( 7 );
+    #elif F_BUS == 120000000
+        SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 0 ) | SIM_CLKDIV1_OUTDIV2( 1 ) | SIM_CLKDIV1_OUTDIV4( 7 );
+    #endif
+#elif F_CPU == 216000000
+    #if F_BUS == 54000000
+        SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 0 ) | SIM_CLKDIV1_OUTDIV2( 3 ) | SIM_CLKDIV1_OUTDIV4( 7 );
+    #elif F_BUS == 72000000
+        SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 0 ) | SIM_CLKDIV1_OUTDIV2( 2 ) | SIM_CLKDIV1_OUTDIV4( 7 );
+    #elif F_BUS == 108000000
+        SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 0 ) | SIM_CLKDIV1_OUTDIV2( 1 ) | SIM_CLKDIV1_OUTDIV4( 7 );
+    #endif
+#elif F_CPU == 192000000
+    #if F_BUS == 48000000
+        SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 0 ) | SIM_CLKDIV1_OUTDIV2( 3 ) | SIM_CLKDIV1_OUTDIV4( 6 );
+    #elif F_BUS == 64000000
+        SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 0 ) | SIM_CLKDIV1_OUTDIV2( 2 ) | SIM_CLKDIV1_OUTDIV4( 6 );
+    #elif F_BUS == 96000000
+        SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 0 ) | SIM_CLKDIV1_OUTDIV2( 1 ) | SIM_CLKDIV1_OUTDIV4( 6 );
+    #endif
+#elif F_CPU == 180000000
+    // config divisors: 180 MHz core, 60 MHz bus, 25.7 MHz flash, USB = IRC48M
+    #if F_BUS == 60000000
+        SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 0 ) | SIM_CLKDIV1_OUTDIV2( 2 ) | SIM_CLKDIV1_OUTDIV4( 6 );
+    #elif F_BUS == 90000000
+        SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 0 ) | SIM_CLKDIV1_OUTDIV2( 1 ) | SIM_CLKDIV1_OUTDIV4( 6 );
+    #endif
+#elif F_CPU == 168000000
     // config divisors: 168 MHz core, 56 MHz bus, 33.6 MHz flash
     SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 0 ) | SIM_CLKDIV1_OUTDIV2( 2 ) |	SIM_CLKDIV1_OUTDIV4( 4 );
 #elif F_CPU == 144000000
@@ -208,20 +304,18 @@ void blpi_pee( void ) {
     SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 0 ) | SIM_CLKDIV1_OUTDIV2( 1 ) |	SIM_CLKDIV1_OUTDIV4( 2 );
 #elif F_CPU == 48000000
     // config divisors: 48 MHz core, 48 MHz bus, 24 MHz flash
-#if defined(KINETISK)
-    SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 1 ) | SIM_CLKDIV1_OUTDIV2( 1 ) |	SIM_CLKDIV1_OUTDIV4( 3 );
-#elif defined(KINETISL)
-    SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 1 ) | SIM_CLKDIV1_OUTDIV4( 1 );
-#endif
+    #if defined(KINETISK)
+        SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 1 ) | SIM_CLKDIV1_OUTDIV2( 1 ) | SIM_CLKDIV1_OUTDIV3( 1 ) |  SIM_CLKDIV1_OUTDIV4( 3 );
+    #elif defined(KINETISL)
+        SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 1 ) | SIM_CLKDIV1_OUTDIV4( 1 );
+    #endif
 #elif F_CPU == 24000000
     // config divisors: 24 MHz core, 24 MHz bus, 24 MHz flash
-#if defined( KINETISK )
-    SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 3 ) | SIM_CLKDIV1_OUTDIV2( 3 ) |	SIM_CLKDIV1_OUTDIV4( 3 );
-#elif defined( KINETISL )
-    SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 3 ) | SIM_CLKDIV1_OUTDIV4( 0 );
-#endif
-#else
-    //#error "Error, F_CPU must be 168, 144, 120, 96, 72, 48, 24, 16, 8, 4, or 2 MHz"
+    #if defined( KINETISK )
+        SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(4) | SIM_CLKDIV1_OUTDIV2( 4 ) | SIM_CLKDIV1_OUTDIV3( 4 ) | SIM_CLKDIV1_OUTDIV4( 4 );
+    #elif defined( KINETISL )
+        SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 3 ) | SIM_CLKDIV1_OUTDIV4( 0 );
+    #endif
 #endif
     // switch to PLL as clock source, FLL input = 16 MHz / 512
     MCG_C1 = MCG_C1_CLKS( 0x00 ) | MCG_C1_FRDIV( 0x04 );
@@ -258,7 +352,7 @@ void blpi_blpe( void ) {
     MCG_C2 |= MCG_C2_LP; // set LP bit
     
     const uint32_t div = ( 16/( F_CPU/1000000 ) )-1;
-    SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( div ) | SIM_CLKDIV1_OUTDIV2( div ) |	 SIM_CLKDIV1_OUTDIV4( div );
+    SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( div ) | SIM_CLKDIV1_OUTDIV2( div ) |	 SIM_CLKDIV1_OUTDIV3( div ) |SIM_CLKDIV1_OUTDIV4( div );
 }
 /**
  *  <#Description#>
@@ -285,7 +379,7 @@ void blpe_blpi( void ) {
     // To move from FBI to BLPI the LP bit must be set
     MCG_C2 |= MCG_C2_LP; // set LP bit
     // config divisors: 2MHz, 2MHz, 1MHz
-    SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 0 ) | SIM_CLKDIV1_OUTDIV2( 0 ) |	 SIM_CLKDIV1_OUTDIV4( 1 );
+    SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 0 ) | SIM_CLKDIV1_OUTDIV2( 0 ) |	 SIM_CLKDIV1_OUTDIV3( 0 ) |SIM_CLKDIV1_OUTDIV4( 1 );
 }
 
 /**

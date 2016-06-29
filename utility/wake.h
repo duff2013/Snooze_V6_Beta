@@ -1,11 +1,35 @@
-//
-//  wakeup.h
-//  Teensyduino_1_27_rc1
-//
-//  Created by Colin on 12/22/15.
-//  Copyright (c) 2015 Colin Duffy. All rights reserved.
-//
-
+/***********************************************************************************
+ Low Power Library for Teensy LC/3.x
+ * Copyright (c) 2014, Colin Duffy https://github.com/duff2013
+ *
+ * Development of this audio library was funded by PJRC.COM, LLC by sales of
+ * Teensy and Audio Adaptor boards.  Please support PJRC's efforts to develop
+ * open source software by purchasing Teensy or other PJRC products.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, development funding notice, and this permission
+ * notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ ***********************************************************************************
+ *  wakeup.h
+ *  Teensy 3.x/LC
+ *
+ * Purpose: Wake up controll
+ *
+ ***********************************************************************************/
 #ifndef wakeup_h
 #define wakeup_h
 /********************************************************************/
@@ -23,6 +47,7 @@
 #define LLWU_CMP2_MOD       0x20
 #endif
 #define LLWU_TSI_MOD        0x40
+
 // external pin interrupt type defines
 #define LLWU_PIN_DIS        0x00
 #define LLWU_PIN_RISING     0x01
@@ -52,6 +77,12 @@ typedef struct {
     uint8_t PE2;
     uint8_t PE3;
     uint8_t PE4;
+#if defined(HAS_KINETIS_LLWU_32CH)
+    uint8_t PE5;
+    uint8_t PE6;
+    uint8_t PE7;
+    uint8_t PE8;
+#endif
     uint8_t ME;
     uint32_t wakeupSource;
     uint32_t llwuFlag;
@@ -148,6 +179,12 @@ extern "C" {
         LLWU_PE2 = 0;
         LLWU_PE3 = 0;
         LLWU_PE4 = 0;
+#if defined(HAS_KINETIS_LLWU_32CH)
+        LLWU_PE5 = 0;
+        LLWU_PE6 = 0;
+        LLWU_PE7 = 0;
+        LLWU_PE8 = 0;
+#endif
     }
     /*******************************************************************************
      *
@@ -179,6 +216,12 @@ extern "C" {
         LLWU_PE2 = mask->PE2;
         LLWU_PE3 = mask->PE3;
         LLWU_PE4 = mask->PE4;
+#if defined(HAS_KINETIS_LLWU_32CH)
+        LLWU_PE5 = mask->PE5;
+        LLWU_PE6 = mask->PE6;
+        LLWU_PE7 = mask->PE7;
+        LLWU_PE8 = mask->PE8;
+#endif
         LLWU_ME  = mask->ME;
     }
     /*******************************************************************************
@@ -192,12 +235,23 @@ extern "C" {
     
     static inline
     uint32_t llwu_clear_flags( void ) {
+#if defined(HAS_KINETIS_LLWU_32CH)
+        uint32_t flag = ( LLWU_PF1 | LLWU_PF2<<8 | LLWU_PF3<<16 | LLWU_MF5<<24 );
+        LLWU_PF1 = 0xFF;
+        LLWU_PF2 = 0xFF;
+        LLWU_PF3 = 0xFF;
+        LLWU_PF4 = 0xFF;
+        LLWU_MF5 = 0xFF;
+        LLWU_FILT1 = 0x80;
+        LLWU_FILT2 = 0x80;
+#elif defined(HAS_KINETIS_LLWU_16CH)
         uint32_t flag = ( LLWU_F1 | LLWU_F2<<8 | LLWU_F3<<16 );
         LLWU_F1 = 0xFF;
         LLWU_F2 = 0xFF;
         LLWU_F3 = 0xFF;
         LLWU_FILT1 = 0x80;
         LLWU_FILT2 = 0x80;
+#endif
         return flag;
     }
     /*******************************************************************************
@@ -212,6 +266,28 @@ extern "C" {
     static inline
     int llwu_disable( void ) {
         llwu_mask_t *mask = &llwuMask;
+#if defined(HAS_KINETIS_LLWU_32CH)
+        if      ( mask->llwuFlag & LLWU_PF1_WUF0 ) mask->wakeupSource = 26;
+        else if ( mask->llwuFlag & LLWU_PF1_WUF3 ) mask->wakeupSource = 33;
+        else if ( mask->llwuFlag & LLWU_PF1_WUF4 ) mask->wakeupSource = 4;
+        else if ( mask->llwuFlag & LLWU_PF1_WUF5 ) mask->wakeupSource = 16;
+        else if ( mask->llwuFlag & LLWU_PF1_WUF6 ) mask->wakeupSource = 22;
+        else if ( mask->llwuFlag & LLWU_PF1_WUF7 ) mask->wakeupSource = 9;
+        
+        else if ( ( mask->llwuFlag>>8 ) & LLWU_PF2_WUF8  ) mask->wakeupSource = 10;
+        else if ( ( mask->llwuFlag>>8 ) & LLWU_PF2_WUF9  ) mask->wakeupSource = 13;
+        else if ( ( mask->llwuFlag>>8 ) & LLWU_PF2_WUF10 ) mask->wakeupSource = 11;
+        else if ( ( mask->llwuFlag>>8 ) & LLWU_PF2_WUF11 ) mask->wakeupSource = 30;
+        else if ( ( mask->llwuFlag>>8 ) & LLWU_PF2_WUF12 ) mask->wakeupSource = 2;
+        else if ( ( mask->llwuFlag>>8 ) & LLWU_PF2_WUF13 ) mask->wakeupSource = 7;
+        else if ( ( mask->llwuFlag>>8 ) & LLWU_PF2_WUF14 ) mask->wakeupSource = 6;
+        else if ( ( mask->llwuFlag>>8 ) & LLWU_PF2_WUF15 ) mask->wakeupSource = 21;
+        
+        else if ( ( mask->llwuFlag>>24 ) & LLWU_ME_WUME0 ) mask->wakeupSource = 36;
+        else if ( ( mask->llwuFlag>>24 ) & LLWU_ME_WUME1 ) mask->wakeupSource = 34;
+        else if ( ( mask->llwuFlag>>24 ) & LLWU_ME_WUME4 ) mask->wakeupSource = 37;
+        else if ( ( mask->llwuFlag>>24 ) & LLWU_ME_WUME5 ) mask->wakeupSource = 35;
+#elif defined(HAS_KINETIS_LLWU_16CH)
         if      ( mask->llwuFlag & LLWU_F1_WUF0 ) mask->wakeupSource = 26;
         else if ( mask->llwuFlag & LLWU_F1_WUF3 ) mask->wakeupSource = 33;
         else if ( mask->llwuFlag & LLWU_F1_WUF4 ) mask->wakeupSource = 4;
@@ -231,14 +307,21 @@ extern "C" {
         else if ( ( mask->llwuFlag>>16 ) & LLWU_F3_MWUF0 ) mask->wakeupSource = 36;
         else if ( ( mask->llwuFlag>>16 ) & LLWU_F3_MWUF1 ) mask->wakeupSource = 34;
         else if ( ( mask->llwuFlag>>16 ) & LLWU_F3_MWUF4 ) mask->wakeupSource = 37;
-#ifdef KINETISK
+    #ifdef KINETISK
         else if ( ( mask->llwuFlag>>16 ) & LLWU_F3_MWUF5 ) mask->wakeupSource = 35;
+    #endif
 #endif
+        
         LLWU_PE1 = 0;
         LLWU_PE2 = 0;
         LLWU_PE3 = 0;
         LLWU_PE4 = 0;
-        LLWU_ME  = 0;
+#if defined(HAS_KINETIS_LLWU_32CH)
+        LLWU_PE5 = 0;
+        LLWU_PE6 = 0;
+        LLWU_PE7 = 0;
+        LLWU_PE8 = 0;
+#endif
         mask->llwuFlag = 0;
         return mask->wakeupSource;
     }
@@ -284,7 +367,8 @@ extern "C" {
     
     static inline
     void llwu_reset_enable( void ) {
-        LLWU_RST = 0x02;//LLWU_RST_LLRSTE_MASK;
+
+        //LLWU_RST = 0x02;//
     }
     /*******************************************************************************
      *

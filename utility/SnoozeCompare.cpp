@@ -41,9 +41,26 @@ void SnoozeCompare::disableDriver( void ) {
     else if ( pin == 12 ) {
         CORE_PIN12_CONFIG = return_core_pin_config[1];
     }
-    CMP0_CR0 = 0x00;
-    CMP0_CR1 = 0x00;
-    SIM_SCGC4 &= ~SIM_SCGC4_CMP;
+    
+#if defined(__MKL26Z64__) || defined(__MK66FX1M0__)
+    LPTMR0_PSR = PSR;
+    LPTMR0_CMR = CMR;
+    LPTMR0_CSR = CSR;
+    if ( !SIM_SCGC5_clock_active ) SIM_SCGC5 &= ~SIM_SCGC5_LPTIMER;
+#endif
+    
+    CMP0_CR0 = CR0;
+    CMP0_CR1 = CR1;
+    CMP0_SCR = SCR;
+    CMP0_FPR = FPR;
+    CMP0_MUXCR = MUXCR;
+    CMP0_DACCR = DACCR;
+    if ( !SIM_SCGC4_clock_active ) SIM_SCGC4 &= ~SIM_SCGC4_CMP;
+    //CMP0_CR0 = 0x00;
+    //CMP0_CR1 = 0x00;
+    //SIM_SCGC4 &= ~SIM_SCGC4_CMP;
+    
+
 }
 
 /*******************************************************************************
@@ -63,11 +80,29 @@ void SnoozeCompare::enableDriver( void ) {
         __enable_irq( );
         NVIC_ENABLE_IRQ( IRQ_CMP0 );
     }
+    
+    if ( SIM_SCGC4 & SIM_SCGC4_CMP ) SIM_SCGC4_clock_active = true;
+    else SIM_SCGC4 |= SIM_SCGC4_CMP;
+    
+    CR0 = CMP0_CR0;
+    CR1 = CMP0_CR1;
+    SCR = CMP0_SCR;
+    FPR = CMP0_FPR;
+    MUXCR = CMP0_MUXCR;
+    DACCR = CMP0_DACCR;
+    
     uint8_t _pin;
-    SIM_SCGC4 |= SIM_SCGC4_CMP;
     CMP0_CR0 = 0x00;
     CMP0_CR1 = 0x00;
     CMP0_SCR = 0x00;
+    
+#if defined(__MKL26Z64__) || defined(__MK66FX1M0__)
+    if ( SIM_SCGC5 & SIM_SCGC5_LPTIMER ) SIM_SCGC5_clock_active = true;
+    else SIM_SCGC5 |= SIM_SCGC5_LPTIMER;
+    PSR = LPTMR0_PSR;
+    CMR = LPTMR0_CMR;
+    CSR = LPTMR0_CSR;
+#endif
     
     if ( pin == 11 ) {
         if ( mode >= LLS ) llwu_configure_modules_mask( LLWU_CMP0_MOD );
@@ -95,10 +130,16 @@ void SnoozeCompare::enableDriver( void ) {
     CMP0_MUXCR = CMP_MUXCR_MSEL(0x07) | CMP_MUXCR_PSEL( _pin );
     CMP0_DACCR = CMP_DACCR_DACEN | CMP_DACCR_VRSEL | CMP_DACCR_VOSEL( tap );
     if ( mode == VLPW ) NVIC_ENABLE_IRQ( IRQ_CMP0 );
+#if defined(__MKL26Z64__) || defined(__MK66FX1M0__)
+    CMP0_CR1 = CMP_CR1_EN | CMP_CR1_TRIGM;
+    SIM_SCGC5 |= SIM_SCGC5_LPTIMER;
+    LPTMR0_CSR = 0;
+    LPTMR0_PSR = LPTMR_PSR_PBYP | LPTMR_PSR_PCS( LPTMR_LPO );//LPO Clock
+    LPTMR0_CMR = 1;
+    LPTMR0_CSR = LPTMR_CSR_TEN | LPTMR_CSR_TCF;
+#else
     CMP0_CR1 = CMP_CR1_EN;
-    //SIM_SCGC5 |= SIM_SCGC5_LPTIMER;
-    //LPTMR0_CMR = 1;
-    //LPTMR0_CSR = LPTMR_CSR_TEN | LPTMR_CSR_TCF;
+#endif
 }
 
 /*******************************************************************************
@@ -115,9 +156,9 @@ void SnoozeCompare::isr( void ) {
     if ( !( SIM_SCGC4 & SIM_SCGC4_CMP ) ) return;
     if ( CMP0_SCR & CMP_SCR_CFF ) CMP0_SCR = CMP_SCR_CFF;
     if ( CMP0_SCR & CMP_SCR_CFR ) CMP0_SCR = CMP_SCR_CFR;
-#if defined(KINETISL)
-    //LPTMR0_CSR = LPTMR_CSR_TCF;
-    //SIM_SCGC5 &= ~SIM_SCGC5_LPTIMER;
-#endif
+#if defined(HAS_KINETIS_LLWU_32CH)
+    source = 34;
+#elif defined(HAS_KINETIS_LLWU_16CH)
     if ( mode == VLPW || mode == VLPS ) source = 34;
+#endif
 }

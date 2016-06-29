@@ -15,6 +15,8 @@
 #define TSI_PEN_LPSP_SHIFT   16
 #define TSI_PEN_LPSP(x)      (((uint32_t)(((uint32_t)(x))<<TSI_PEN_LPSP_SHIFT))&TSI_PEN_LPSP_MASK)
 
+#endif
+#if defined(__MK20DX256__)
 static const uint8_t tsi_pins[] = {
     //0    1    2    3    4    5    6    7    8    9
     9,  10, 255, 255, 255, 255, 255, 255, 255, 255,
@@ -22,12 +24,20 @@ static const uint8_t tsi_pins[] = {
     255, 255,  14,  15, 255,  12, 255, 255, 255, 255,
     255, 255,  11,   5
 };
-#elif defined(KINETISL)
+#elif defined(__MKL26Z64__)
 static const uint8_t tsi_pins[] = {
     //0    1    2    3    4    5    6    7    8    9
     9,  10, 255,   2,   3, 255, 255, 255, 255, 255,
     255, 255, 255, 255, 255,  13,   0,   6,   8,   7,
     255, 255,  14,  15, 255, 255, 255
+};
+#elif defined(__MK66FX1M0__)
+static const uint8_t tsi_pins[] = {
+    //0    1    2    3    4    5    6    7    8    9
+    9,  10, 255, 255, 255, 255, 255, 255, 255, 255,
+    255, 255, 255, 255, 255,  13,   0,   6,   8,   7,
+    255, 255,  14,  15, 255, 255, 255, 255, 255,  11,
+    12, 255, 255, 255, 255, 255, 255, 255, 255, 255
 };
 #endif
 /*******************************************************************************
@@ -48,11 +58,15 @@ void SnoozeTouch::disableDriver( void ) {
     if ( mode == RUN_LP || mode == VLPW || mode == RUN_LP ) return;
     uint8_t _pin = pin;
     TSI0_GENCS     &= ~TSI_GENCS_TSIEN;
+#if defined(HAS_KINETIS_TSI)
     TSI0_GENCS      = GENCS;
     TSI0_THRESHOLD  = THRESHOLD;
     TSI0_SCANC      = SCANC;
     TSI0_PEN        = PEN;
-    
+#elif defined(HAS_KINETIS_TSI_LITE)
+    TSI0_DATA       = DATA;
+    TSI0_TSHD       = THRESHOLD;
+#endif
     volatile uint32_t *config;
     config = portConfigRegister( _pin );
     *config = return_core_pin_config;
@@ -70,12 +84,15 @@ void SnoozeTouch::enableDriver( void ) {
     llwu_configure_modules_mask( LLWU_TSI_MOD );
     
     uint16_t _threshold = threshold;
-    
     GENCS     = TSI0_GENCS;
+#if defined(HAS_KINETIS_TSI)
     THRESHOLD = TSI0_THRESHOLD;
     SCANC     = TSI0_SCANC;
     PEN       = TSI0_PEN;
-    
+#elif defined(HAS_KINETIS_TSI_LITE)
+    DATA      = TSI0_DATA;
+    THRESHOLD = TSI0_TSHD;
+#endif
     uint32_t ch;
     ch = tsi_pins[pin];
     if ( ch == 255 ) return;
@@ -90,7 +107,7 @@ void SnoozeTouch::enableDriver( void ) {
     else SIM_SCGC5 |= SIM_SCGC5_TSI;
     
     TSI0_GENCS = 0;
-#if defined(KINETISK)
+#if defined(HAS_KINETIS_TSI)
     TSI0_THRESHOLD = _threshold;
     TSI0_SCANC =  (
                    ( TSI_SCANC_EXTCHRG( 2 ) ) |
@@ -109,7 +126,7 @@ void SnoozeTouch::enableDriver( void ) {
                   ( TSI_GENCS_EOSF          ) |
                   ( TSI_GENCS_TSIEN         )
                   );
-#elif defined(KINETISL)
+#elif defined(HAS_KINETIS_TSI_LITE)
     TSI0_TSHD = ( _threshold << 16) & 0xFFFF0000;
     TSI0_DATA = TSI_DATA_TSICH( ch );
     TSI0_GENCS = (
@@ -144,9 +161,14 @@ void SnoozeTouch::clearIsrFlags( void ) {
 void SnoozeTouch::isr( void ) {
     if ( !( SIM_SCGC5 & SIM_SCGC5_TSI ) ) return;
     TSI0_GENCS = TSI_GENCS_OUTRGF | TSI_GENCS_EOSF;
-#if defined(KINETISL)
+#if defined(HAS_KINETIS_TSI_LITE)
     LPTMR0_CSR = LPTMR_CSR_TCF;
     SIM_SCGC5 &= ~SIM_SCGC5_LPTIMER;
 #endif
+    
+#if defined(HAS_KINETIS_LLWU_32CH)
+    source = 37;
+#elif defined(HAS_KINETIS_LLWU_16CH)
     if ( mode == VLPW || mode == VLPS ) source = 37;
+#endif
 }

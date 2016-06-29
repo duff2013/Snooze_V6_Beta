@@ -1,4 +1,29 @@
 /***********************************************************************************
+ Low Power Library for Teensy LC/3.x
+ * Copyright (c) 2014, Colin Duffy https://github.com/duff2013
+ *
+ * Development of this audio library was funded by PJRC.COM, LLC by sales of
+ * Teensy and Audio Adaptor boards.  Please support PJRC's efforts to develop
+ * open source software by purchasing Teensy or other PJRC products.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, development funding notice, and this permission
+ * notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ ************************************************************************************
  *  SnoozeTimer.h
  *  Teensy 3.x/LC
  *
@@ -21,9 +46,14 @@ private:
     uint8_t  pin;
     uint16_t threshold;
     uint32_t GENCS;
+#if defined(HAS_KINETIS_TSI)
     uint32_t SCANC;
     uint32_t PEN;
     uint32_t THRESHOLD;
+#elif defined(HAS_KINETIS_TSI_LITE)
+    uint32_t DATA;
+    uint32_t THRESHOLD;
+#endif
     //uint8_t return_priority;
     //uint8_t return_isr_enabled;
     bool SIM_SCGC5_clock_active;

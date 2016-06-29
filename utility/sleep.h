@@ -1,4 +1,29 @@
-/*******************************************************************************
+/********************************************************************************
+ Low Power Library for Teensy LC/3.x
+ * Copyright (c) 2014, Colin Duffy https://github.com/duff2013
+ *
+ * Development of this audio library was funded by PJRC.COM, LLC by sales of
+ * Teensy and Audio Adaptor boards.  Please support PJRC's efforts to develop
+ * open source software by purchasing Teensy or other PJRC products.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice, development funding notice, and this permission
+ * notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ ********************************************************************************
  *  smc.h
  *  Teensy 3.x/LC
  *
@@ -193,10 +218,17 @@ extern "C" {
     
     static inline
     void lls( void ) {
-        //LLS low power mode
-        // Set the LPLLSM field to 0b011 for LLS mode
+#if defined(__MK66FX1M0__)
+#if F_CPU > 120000000
+        SMC_PMCTRL = SMC_PMCTRL_RUNM( 0x03 ) | SMC_PMCTRL_STOPM( 0x03 );
+#else
         SMC_PMCTRL = SMC_PMCTRL_STOPM( 0x03 ) ;
         ( void ) SMC_PMCTRL;
+#endif
+#else
+        SMC_PMCTRL = SMC_PMCTRL_STOPM( 0x03 ) ;
+        ( void ) SMC_PMCTRL;
+#endif
         // Now execute the stop instruction to go into LLS
         stop( );
     }
@@ -223,9 +255,17 @@ extern "C" {
     
     static inline
     void vlls3( void ) {
-        //VLLS3 low power mode
+#if defined(__MK66FX1M0__)
+#if F_CPU > 120000000
+        SMC_PMCTRL = SMC_PMCTRL_RUNM( 0x03 ) | SMC_PMCTRL_STOPM( 0x04 );
+#else
         SMC_PMCTRL = SMC_PMCTRL_STOPM( 0x04 ) ;
-        // Set the VLLSM field to 0b100 for VLLS3 mode - Need to retain
+        ( void ) SMC_PMCTRL;
+#endif
+#else
+        SMC_PMCTRL = SMC_PMCTRL_STOPM( 0x04 ) ;
+        ( void ) SMC_PMCTRL;
+#endif
         SMC_VLLSCTRL =  SMC_VLLSCTRL_VLLSM( 0x03 );// set VLLSM = 0b11
         ( void ) SMC_VLLSCTRL;
         // Now execute the stop instruction to go into VLLS3
@@ -254,11 +294,18 @@ extern "C" {
     
     static inline
     void vlls2( void ) {
-        //VLLS2 low power mode
-        // Set the LPLLSM field to 0b011 for LLS mode
+#if defined(__MK66FX1M0__)
+#if F_CPU > 120000000
+        SMC_PMCTRL = SMC_PMCTRL_RUNM( 0x03 ) | SMC_PMCTRL_STOPM( 0x04 );
+#else
         SMC_PMCTRL = SMC_PMCTRL_STOPM( 0x04 ) ;
-        // Set the VLLSM field to 0b100 for VLLS2 mode
-        SMC_VLLSCTRL =  SMC_VLLSCTRL_VLLSM( 0x02 );// set VLLSM = 0b10
+        ( void ) SMC_PMCTRL;
+#endif
+#else
+        SMC_PMCTRL = SMC_PMCTRL_STOPM( 0x04 ) ;
+        ( void ) SMC_PMCTRL;
+#endif
+        SMC_VLLSCTRL =  SMC_VLLSCTRL_VLLSM( 0x02 );// set VLLSM = 0b11
         ( void ) SMC_VLLSCTRL;
         // Now execute the stop instruction to go into VLLS2
         stop( );
@@ -286,10 +333,18 @@ extern "C" {
     
     static inline
     void vlls1( void ) {
-        //VLLS1 low power mode
+#if defined(__MK66FX1M0__)
+#if F_CPU > 120000000
+        SMC_PMCTRL = SMC_PMCTRL_RUNM( 0x03 ) | SMC_PMCTRL_STOPM( 0x04 );
+#else
         SMC_PMCTRL = SMC_PMCTRL_STOPM( 0x04 ) ;
-        // Set the VLLSM field to 0b100 for VLLS1 mode
-        SMC_VLLSCTRL =  SMC_VLLSCTRL_VLLSM( 0x01 );// set VLLSM = 0b01
+        ( void ) SMC_PMCTRL;
+#endif
+#else
+        SMC_PMCTRL = SMC_PMCTRL_STOPM( 0x04 ) ;
+        ( void ) SMC_PMCTRL;
+#endif
+        SMC_VLLSCTRL =  SMC_VLLSCTRL_VLLSM( 0x01 );// set VLLSM = 0b11
         ( void ) SMC_VLLSCTRL;
         // Now execute the stop instruction to go into VLLS1
         stop( );
@@ -317,10 +372,18 @@ extern "C" {
     
     static inline
     void vlls0( void ) {
-        //VLLS0 low power mode
+#if defined(__MK66FX1M0__)
+#if F_CPU > 120000000
+        SMC_PMCTRL = SMC_PMCTRL_RUNM( 0x03 ) | SMC_PMCTRL_STOPM( 0x04 );
+#else
         SMC_PMCTRL = SMC_PMCTRL_STOPM( 0x04 ) ;
-        // Set the VLLSM field to 0b100 for VLLS0 mode
-        SMC_VLLSCTRL =  SMC_VLLSCTRL_VLLSM( 0x00 );// set VLLSM = 0b00
+        ( void ) SMC_PMCTRL;
+#endif
+#else
+        SMC_PMCTRL = SMC_PMCTRL_STOPM( 0x04 ) ;
+        ( void ) SMC_PMCTRL;
+#endif
+        SMC_VLLSCTRL =  SMC_VLLSCTRL_VLLSM( 0x00 );// set VLLSM = 0b11
         ( void ) SMC_VLLSCTRL;
         // Now execute the stop instruction to go into VLLS0
         stop( );
@@ -348,12 +411,20 @@ extern "C" {
     
     static inline
     void vlls0_nopor( void ) {
-        //VLLS0 low power mode
-        SMC_PMCTRL = SMC_PMCTRL_STOPM( 0x04 ) ;
-        // Set the VLLSM field to 0b100 for VLLS0 mode
-        SMC_VLLSCTRL =  SMC_VLLSCTRL_VLLSM( 0x00 );// set VLLSM = 0b00
+#if defined(__MK66FX1M0__)
+#if F_CPU > 120000000
+        SMC_PMCTRL = SMC_PMCTRL_RUNM( 0x03 ) | SMC_PMCTRL_STOPM( 0x04 );
+#else
+        SMC_PMCTRL = SMC_PMCTRL_STOPM( 0x03 ) ;
+        ( void ) SMC_PMCTRL;
+#endif
+#else
+        SMC_PMCTRL = SMC_PMCTRL_STOPM( 0x03 ) ;
+        ( void ) SMC_PMCTRL;
+#endif
+        SMC_VLLSCTRL =  SMC_VLLSCTRL_VLLSM( 0x00 );// set VLLSM = 0b11
         ( void ) SMC_VLLSCTRL;
-        // Now execute the stop instruction to go into VLLS0
+        // Now execute the stop instruction to go into VLLS1
         stop( );
     }
     
@@ -425,7 +496,7 @@ extern "C" {
     void vlpw( void ) {
         SYST_CSR &= ~SYST_CSR_TICKINT;      // disable systick timer interrupt
         SCB_SCR = SCB_SCR_SLEEPONEXIT; // Clear the SLEEPDEEP bit to make sure we go into WAIT (sleep) mode instead of deep sleep.
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) { asm volatile( "wfi" ); }// WFI instruction will start entry into WAIT mode
+        ATOMIC_BLOCK( ATOMIC_RESTORESTATE ) { asm volatile( "wfi" ); }// WFI instruction will start entry into WAIT mode
         SYST_CSR |= SYST_CSR_TICKINT;       // renable systick timer interrupt
     }
     /*******************************************************************************
@@ -439,7 +510,7 @@ extern "C" {
     static inline
     void wait( void ) {
         SCB_SCR = 0; // Clear the SLEEPDEEP bit to make sure we go into WAIT (sleep) mode instead of deep sleep.
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) { asm volatile( "wfi" ); }// WFI instruction will start entry into WAIT mode
+        ATOMIC_BLOCK( ATOMIC_RESTORESTATE ) { asm volatile( "wfi" ); }// WFI instruction will start entry into WAIT mode
     }
     
 #ifdef __cplusplus

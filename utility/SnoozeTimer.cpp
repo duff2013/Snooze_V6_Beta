@@ -111,5 +111,9 @@ void SnoozeTimer::clearIsrFlags( void ) {
 void SnoozeTimer::isr( void ) {
     if ( !( SIM_SCGC5 & SIM_SCGC5_LPTIMER ) ) return;
     LPTMR0_CSR = LPTMR_CSR_TCF;
+#if defined(HAS_KINETIS_LLWU_32CH)
+    source = 36;
+#elif defined(HAS_KINETIS_LLWU_16CH)
     if ( mode == VLPW || mode == VLPS ) source = 36;
+#endif
 }
