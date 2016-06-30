@@ -1,6 +1,6 @@
 # Snooze v6.0.1 - Beta
 
-<h4>The new api. This is still beta so it might be broken at times. I'll update here once it becomes stable. Must have latest Teensyduino installed from github [here] for Teensy 3.5 support.</h4>
+<h4>The new api. This is still beta so it might be broken at times. I'll update here once it becomes stable. Must have latest Teensyduino installed from github https://github.com/PaulStoffregen/cores for Teensy 3.5 support.</h4>
 
 ---
 For those using v5 of Snooze the reason for the change is that new Teensy's are in the pipeline and updating this fairly extensive library became to difficult because each new processor introduced has its own set of Low Power functionality. Now the library is divided into three classes:<br>
@@ -106,9 +106,3 @@ As you can see Snooze library has only one Snooze Class but can have mulitple Sn
 <br>
 ![alt text](https://github.com/duff2013/Snooze_V6_Beta/blob/master/images/Snooze_Class_Layout/Slide7.png "Snooze Library Layout")
 <br>
-[here]:https://github.com/PaulStoffregen/cores
-
-
-
-
-
