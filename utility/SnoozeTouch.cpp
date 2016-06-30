@@ -10,12 +10,11 @@
 #include "wake.h"
 
 #if defined(KINETISK)
-
-#define TSI_PEN_LPSP_MASK    0xF0000u
-#define TSI_PEN_LPSP_SHIFT   16
-#define TSI_PEN_LPSP(x)      (((uint32_t)(((uint32_t)(x))<<TSI_PEN_LPSP_SHIFT))&TSI_PEN_LPSP_MASK)
-
+    #define TSI_PEN_LPSP_MASK    0xF0000u
+    #define TSI_PEN_LPSP_SHIFT   16
+    #define TSI_PEN_LPSP(x)      (((uint32_t)(((uint32_t)(x))<<TSI_PEN_LPSP_SHIFT))&TSI_PEN_LPSP_MASK)
 #endif
+
 #if defined(__MK20DX256__)
 static const uint8_t tsi_pins[] = {
     //0    1    2    3    4    5    6    7    8    9
@@ -57,6 +56,14 @@ void SnoozeTouch::pinMode( int _pin, int thresh ) {
 void SnoozeTouch::disableDriver( void ) {
     if ( mode == RUN_LP || mode == VLPW || mode == RUN_LP ) return;
     uint8_t _pin = pin;
+    
+#if defined(HAS_KINETIS_TSI_LITE)
+    LPTMR0_PSR = PSR;
+    LPTMR0_CMR = CMR;
+    LPTMR0_CSR = CSR;
+    if ( !timer_clock_active ) SIM_SCGC5 &= ~SIM_SCGC5_LPTIMER;
+#endif
+    
     TSI0_GENCS     &= ~TSI_GENCS_TSIEN;
 #if defined(HAS_KINETIS_TSI)
     TSI0_GENCS      = GENCS;
@@ -77,11 +84,19 @@ void SnoozeTouch::disableDriver( void ) {
  *  <#Description#>
  *******************************************************************************/
 void SnoozeTouch::enableDriver( void ) {
-    if ( mode == RUN_LP || mode == VLPW ) return;
+    //if ( mode == RUN_LP || mode == VLPW ) return;
     uint8_t _pin = pin;
     if ( _pin >= NUM_DIGITAL_PINS ) return;
     
-    llwu_configure_modules_mask( LLWU_TSI_MOD );
+    //llwu_configure_modules_mask( LLWU_TSI_MOD );
+    
+#if defined(HAS_KINETIS_TSI_LITE)
+    if ( SIM_SCGC5 & SIM_SCGC5_LPTIMER ) timer_clock_active = true;
+    else SIM_SCGC5 |= SIM_SCGC5_LPTIMER;
+    PSR = LPTMR0_PSR;
+    CMR = LPTMR0_CMR;
+    CSR = LPTMR0_CSR;
+#endif
     
     uint16_t _threshold = threshold;
     GENCS     = TSI0_GENCS;
@@ -117,7 +132,7 @@ void SnoozeTouch::enableDriver( void ) {
                    );
     TSI0_PEN = TSI_PEN_LPSP( ch );
     TSI0_GENCS = (
-                  ( TSI_GENCS_NSCN( 9 )    ) |
+                  ( TSI_GENCS_NSCN( 9 )     ) |
                   ( TSI_GENCS_PS( 2 )       ) |
                   ( TSI_GENCS_LPSCNITV( 7 ) ) |
                   ( TSI_GENCS_STPE          ) |
@@ -144,7 +159,7 @@ void SnoozeTouch::enableDriver( void ) {
     
     SIM_SOPT1 |= SIM_SOPT1_OSC32KSEL( 3 );
     SIM_SCGC5 |= SIM_SCGC5_LPTIMER;
-    LPTMR0_PSR = LPTMR_PSR_PBYP | LPTMR_PSR_PCS( 1 );// LPO Clock
+    LPTMR0_PSR = LPTMR_PSR_PBYP | LPTMR_PSR_PCS( LPTMR_LPO );// LPO Clock
     LPTMR0_CMR = 1;
     LPTMR0_CSR = LPTMR_CSR_TEN | LPTMR_CSR_TCF;
 #endif
@@ -161,14 +176,5 @@ void SnoozeTouch::clearIsrFlags( void ) {
 void SnoozeTouch::isr( void ) {
     if ( !( SIM_SCGC5 & SIM_SCGC5_TSI ) ) return;
     TSI0_GENCS = TSI_GENCS_OUTRGF | TSI_GENCS_EOSF;
-#if defined(HAS_KINETIS_TSI_LITE)
-    LPTMR0_CSR = LPTMR_CSR_TCF;
-    SIM_SCGC5 &= ~SIM_SCGC5_LPTIMER;
-#endif
-    
-#if defined(HAS_KINETIS_LLWU_32CH)
-    source = 37;
-#elif defined(HAS_KINETIS_LLWU_16CH)
     if ( mode == VLPW || mode == VLPS ) source = 37;
-#endif
 }

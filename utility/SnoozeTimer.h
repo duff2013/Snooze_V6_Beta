@@ -42,6 +42,7 @@ private:
     virtual void clearIsrFlags( void );
     static void isr( void );
     uint16_t period;
+    static volatile uint16_t lptmrUpdateSystick;
     uint32_t PSR;
     uint32_t CMR;
     uint32_t CSR;
@@ -52,6 +53,7 @@ public:
                   SIM_SCGC5_clock_active(false ),
                   OSC_clock_active( false )
     {
+        lptmrUpdateSystick = 0;
         isDriver = true;
     }
     void setTimer( uint16_t newPeriod );

@@ -36,6 +36,7 @@ void SnoozeAlarm::setAlarm(  uint8_t hours, uint8_t minutes, uint8_t seconds ) {
  *  <#Description#>
  *******************************************************************************/
 void SnoozeAlarm::disableDriver( void ) {
+    
     if ( mode == RUN_LP ) { return; }
     if ( mode == VLPW || mode == VLPS ) {
         if ( return_isr_enabled == 0 )  NVIC_DISABLE_IRQ( IRQ_RTC_ALARM ); //disable irq
@@ -54,7 +55,7 @@ void SnoozeAlarm::disableDriver( void ) {
 void SnoozeAlarm::enableDriver( void ) {
     if ( mode == RUN_LP ) { return; }
     if ( mode == VLPW || mode == VLPS ) {
-        return_priority = NVIC_GET_PRIORITY( IRQ_LPTMR );//get current priority
+        return_priority = NVIC_GET_PRIORITY( IRQ_RTC_ALARM );//get current priority
         int priority = nvic_execution_priority( );// get current priority
         // if running from handler set priority higher than current handler
         priority = ( priority  < 256 ) && ( ( priority - 16 ) > 0 ) ? priority - 16 : 128;
@@ -68,9 +69,10 @@ void SnoozeAlarm::enableDriver( void ) {
     if ( SIM_SCGC6 & SIM_SCGC6_RTC ) SIM_SCGC6_clock_active = true;
     else SIM_SCGC6 |= SIM_SCGC6_RTC;
     
-    if ( mode == VLPW ) {
+    
+    if ( mode == VLPW || mode == VLPS) {
         return_isr_enabled = NVIC_IS_ENABLED( IRQ_RTC_ALARM );
-        if ( return_isr_enabled == 0 ) NVIC_ENABLE_IRQ( IRQ_LPTMR );
+        if ( return_isr_enabled == 0 ) NVIC_ENABLE_IRQ( IRQ_RTC_ALARM );
     } else {
         llwu_configure_modules_mask( LLWU_RTCA_MOD );
     }
@@ -92,6 +94,6 @@ void SnoozeAlarm::clearIsrFlags( void ) {
  *******************************************************************************/
 void SnoozeAlarm::isr( void ) {
     if ( !( SIM_SCGC6 & SIM_SCGC6_RTC ) ) return;
-    RTC_TAR = RTC_TSR+1;
+    RTC_TAR = RTC_TSR + 1;
     if ( mode == VLPW || mode == VLPS ) source = 35;
 }

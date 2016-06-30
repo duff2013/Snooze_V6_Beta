@@ -17,12 +17,16 @@ SnoozeTouch touch;
 SnoozeAlarm	alarm;
 #endif
 
-// install driver to a configuration block
-SnoozeBlock config(touch, compare, digital, timer);
-
-#ifdef KINETISK
-SnoozeBlock config_alt(touch, compare, digital, alarm);
-#endif
+/***********************************************************
+ * Teensy 3.5/LC can't use Timer Driver with either Touch or
+ * Compare Drivers and Touch can't be used with Compare.
+ ***********************************************************/
+SnoozeBlock config_teensy35(touch, digital, alarm);
+SnoozeBlock config_teensyLC(compare, digital, alarm);
+/***********************************************************
+ * Teensy 3.2 can use any Core Drivers together.
+ ***********************************************************/
+SnoozeBlock config_teensy32(touch, compare, digital, timer);
 
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
@@ -40,18 +44,15 @@ void setup() {
     digital.pinMode(22, INPUT_PULLUP, RISING);//pin, mode, type
     
     /********************************************************
-     * Set Low Power Timer wake up in milliseconds.
-     ********************************************************/
-    timer.setTimer(5000);// milliseconds
-    
-    /********************************************************
      * Teensy 3.x only currently.
      *
      * Set RTC alarm wake up in (hours, minutes, seconds).
      ********************************************************/
-#ifdef KINETISK
     alarm.setAlarm(0, 0, 10);// hour, min, sec
-#endif
+    /********************************************************
+     * Set Low Power Timer wake up in milliseconds.
+     ********************************************************/
+    timer.setTimer(5000);// milliseconds
     
     /********************************************************
      * Values greater or less than threshold will trigger CMP
@@ -63,7 +64,6 @@ void setup() {
      *
      * Teensy 3.x/LC
      * Compare pins: 11,12
-     * not quite working right yet!!!
      ********************************************************/
     // trigger at threshold values greater than 1.65v
     //config.pinMode(11, CMP, HIGH, 1.65);//pin, mode, type, threshold(v)
@@ -84,14 +84,19 @@ void setup() {
     touch.pinMode(0, touchRead(0) + 250); // pin, threshold
 }
 
-
 void loop() {
+    int who;
     /********************************************************
-     * feed the sleep function its wakeup parameters. Then go 
-     * to hibernate. Config_alt replaces timer with an alarm.
+     * feed the sleep function its wakeup parameters. Then go
+     * to deepSleep.
      ********************************************************/
-    int who = Snooze.hibernate( config );// return module that woke processor
-    //int who = Snooze.hibernate( config_alt );// return module that woke processor
+#if defined(__MK66FX1M0__)
+    who = Snooze.hibernate( config_teensy35 );// return module that woke processor
+#elif defined(__MK20DX256__)
+    who = Snooze.hibernate( config_teensy32 );// return module that woke processor
+#elif defined(__MKL26Z64__)
+    who = Snooze.hibernate( config_teensyLC );// return module that woke processor
+#endif
     
     if (who == 21) { // pin wakeup source is its pin value
         for (int i = 0; i < 1; i++) {

@@ -16,7 +16,7 @@
 //#define LPTMR_OSCERCLK       (uint8_t)0x3
 /********************************************************************/
 void ( * SnoozeTimer::return_lptmr_irq ) ( void );
-
+volatile uint16_t SnoozeTimer::lptmrUpdateSystick;
 /*******************************************************************************
  *  Set The Period for the Low Power Timer to wake the processor
  *
@@ -63,6 +63,9 @@ void SnoozeTimer::enableDriver( void ) {
         attachInterruptVector( IRQ_LPTMR, isr );
         __enable_irq( );
     }
+    
+    // save lp timer value to update systick if woke by timer.
+    lptmrUpdateSystick = period;
     
     if ( SIM_SCGC5 & SIM_SCGC5_LPTIMER ) SIM_SCGC5_clock_active = true;
     else SIM_SCGC5 |= SIM_SCGC5_LPTIMER;
@@ -111,9 +114,5 @@ void SnoozeTimer::clearIsrFlags( void ) {
 void SnoozeTimer::isr( void ) {
     if ( !( SIM_SCGC5 & SIM_SCGC5_LPTIMER ) ) return;
     LPTMR0_CSR = LPTMR_CSR_TCF;
-#if defined(HAS_KINETIS_LLWU_32CH)
-    source = 36;
-#elif defined(HAS_KINETIS_LLWU_16CH)
     if ( mode == VLPW || mode == VLPS ) source = 36;
-#endif
 }

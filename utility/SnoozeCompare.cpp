@@ -156,9 +156,5 @@ void SnoozeCompare::isr( void ) {
     if ( !( SIM_SCGC4 & SIM_SCGC4_CMP ) ) return;
     if ( CMP0_SCR & CMP_SCR_CFF ) CMP0_SCR = CMP_SCR_CFF;
     if ( CMP0_SCR & CMP_SCR_CFR ) CMP0_SCR = CMP_SCR_CFR;
-#if defined(HAS_KINETIS_LLWU_32CH)
-    source = 34;
-#elif defined(HAS_KINETIS_LLWU_16CH)
     if ( mode == VLPW || mode == VLPS ) source = 34;
-#endif
 }

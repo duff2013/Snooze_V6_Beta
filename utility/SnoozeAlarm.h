@@ -48,7 +48,7 @@ private:
     bool SIM_SCGC6_clock_active;
 public:
     SnoozeAlarm(void) : TAR( false ), IER( false ),
-                  SIM_SCGC6_clock_active( false )
+                        SIM_SCGC6_clock_active( false )
     {
         isDriver = true;
     }

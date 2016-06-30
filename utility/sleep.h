@@ -98,7 +98,7 @@ extern "C" {
         // retain state of LPWUI bit 8
         SMC_PMCTRL =  SMC_PMCTRL_STOPM( 0x00 );// set STOPM = 0b000
         ( void ) SMC_PMCTRL;
-        //stop( );
+        stop( );
     }
     
     /*******************************************************************************
@@ -122,6 +122,10 @@ extern "C" {
     static inline
     void enter_vlpr( void ) {
         if ( SMC_PMSTAT & SMC_PMSTAT_VLPR ) return;
+        
+        SMC_PMCTRL = SMC_PMCTRL_RUNM( 0 );
+        ( void ) SMC_PMCTRL;
+        while( !( SMC_PMSTAT & SMC_PMSTAT_RUN ) );
         
         SMC_PMCTRL = SMC_PMCTRL_RUNM( 2 );
         ( void ) SMC_PMCTRL;
@@ -152,14 +156,39 @@ extern "C" {
         /* check to make sure in VLPR before exiting    */
         if  ( !( SMC_PMSTAT & SMC_PMSTAT_VLPR ) ) return;
         // Clear RUNM
+        
+#if defined(__MK66FX1M0__)
+    #if F_CPU > 120000000
+        SMC_PMCTRL = SMC_PMCTRL_RUNM( 0 );
+        ( void ) SMC_PMCTRL;
+        while( !( SMC_PMSTAT & SMC_PMSTAT_RUN ) );
+        
+        SMC_PMCTRL = SMC_PMCTRL_RUNM( 0x03 );
+        ( void ) SMC_PMCTRL;
+    #else
         SMC_PMCTRL = SMC_PMCTRL_RUNM( 0x00 );
         ( void ) SMC_PMCTRL;
+    #endif
+#else
+        SMC_PMCTRL = SMC_PMCTRL_RUNM( 0x00 );
+        ( void ) SMC_PMCTRL;
+#endif
+        
         // Wait for normal RUN regulation mode to be confirmed
         // 0 MCU is not in run regulation mode
         // 1 MCU is in run regulation mode
         while( !( PMC_REGSC & PMC_REGSC_REGONS ) );
-        
+#if defined(__MK66FX1M0__)
+    #if F_CPU > 120000000
+        while( !( SMC_PMSTAT & SMC_PMSTAT_HSRUN ) );
+    #else
         while( !( SMC_PMSTAT & SMC_PMSTAT_RUN ) );
+    #endif
+#else
+        while( !( SMC_PMSTAT & SMC_PMSTAT_RUN ) );
+#endif
+        
+
     }
     
     /*******************************************************************************
@@ -181,13 +210,22 @@ extern "C" {
      * Parameters:  value of LPWUI
      *******************************************************************************/
     static inline
-    void vlps( char lpwui_value )
+    void vlps( void )
     __attribute__((always_inline, unused));
     
     static inline
-    void vlps( char lpwui_value ) {
-        //very low power modes: VLPR, VLPW, and VLPS.
-
+    void vlps( void ) {
+#if defined(__MK66FX1M0__)
+#if F_CPU > 120000000
+        SMC_PMCTRL = SMC_PMCTRL_RUNM( 0x03 ) | SMC_PMCTRL_STOPM( 0x03 );
+#else
+        SMC_PMCTRL = SMC_PMCTRL_STOPM( 0x03 ) ;
+        ( void ) SMC_PMCTRL;
+#endif
+#else
+        SMC_PMCTRL = SMC_PMCTRL_STOPM( 0x03 ) ;
+        ( void ) SMC_PMCTRL;
+#endif
         // Now execute the stop instruction to go into VLPS
         stop( );
     }
@@ -491,7 +529,7 @@ extern "C" {
     static inline
     void vlpw( void ) {
         SYST_CSR &= ~SYST_CSR_TICKINT;      // disable systick timer interrupt
-        SCB_SCR = SCB_SCR_SLEEPONEXIT; // Clear the SLEEPDEEP bit to make sure we go into WAIT (sleep) mode instead of deep sleep.
+        //SCB_SCR = SCB_SCR_SLEEPONEXIT; // Clear the SLEEPDEEP bit to make sure we go into WAIT (sleep) mode instead of deep sleep.
         ATOMIC_BLOCK( ATOMIC_RESTORESTATE ) { asm volatile( "wfi" ); }// WFI instruction will start entry into WAIT mode
         SYST_CSR |= SYST_CSR_TICKINT;       // renable systick timer interrupt
     }

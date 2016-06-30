@@ -44,7 +44,6 @@ private:
     uint8_t return_priority_cmp0;
     uint8_t pin;
     uint8_t type;
-    
     uint8_t CR0;
     uint8_t CR1;
     uint8_t SCR;
@@ -52,22 +51,20 @@ private:
     uint8_t MUXCR;
     uint8_t DACCR;
     bool    SIM_SCGC4_clock_active;
-    
 #if defined(__MKL26Z64__) || defined(__MK66FX1M0__)
     uint32_t PSR;
     uint32_t CMR;
     uint32_t CSR;
     bool SIM_SCGC5_clock_active;
 #endif
-
-    
     volatile uint32_t return_core_pin_config[2];
 public:
-    SnoozeCompare(void)  : SIM_SCGC4_clock_active( false ),
+    SnoozeCompare(void)  :
 #if defined(__MKL26Z64__) || defined(__MK66FX1M0__)
                             PSR( 0 ), CMR( 0 ), CSR( 0 ),
                             SIM_SCGC5_clock_active(false ),
 #endif
+                            SIM_SCGC4_clock_active( false ),
                             CR0( 0 ), CR1( 0 ), SCR( 0 ),
                             FPR( 0 ), MUXCR( 0 ), DACCR( 0 )
     {

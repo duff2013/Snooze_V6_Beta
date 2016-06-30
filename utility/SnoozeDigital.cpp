@@ -225,75 +225,15 @@ void SnoozeDigital::disableDriver( void ) {
         if ( return_isr_c_enabled == 0 ) NVIC_DISABLE_IRQ( IRQ_PORTC );
         if ( return_isr_d_enabled == 0 ) NVIC_DISABLE_IRQ( IRQ_PORTD );
         if ( return_isr_e_enabled == 0 ) NVIC_DISABLE_IRQ( IRQ_PORTE );
-        /*_pin = pin;
-        while ( __builtin_popcountll( _pin ) ) {
-            uint32_t pinNumber = 63 - __builtin_clzll( _pin );
-            
-            if ( pinNumber > 33 ) continue;
-            
-            if ( mode == VLPW ) {// if using sleep, give back previous isr handler
-                if ( pinNumber == 3 || pinNumber == 4 || pinNumber == 24 || pinNumber == 33 ) {
-                    NVIC_SET_PRIORITY( IRQ_PORTA, 128 );//return priority to core level
-                    __disable_irq( );
-                    attachInterruptVector( IRQ_PORTA, return_porta_irq );// return prev interrupt handler
-                    __enable_irq( );
-                }
-                else if ( pinNumber == 0 || pinNumber == 1 || pinNumber == 16 || pinNumber == 17 || pinNumber == 18 || pinNumber == 19 || pinNumber == 25 || pinNumber == 32 ) {
-                    NVIC_ENABLE_IRQ(IRQ_PORTB);
-                    NVIC_SET_PRIORITY( IRQ_PORTB, 128 );//return priority to core level
-                    __disable_irq( );
-                    attachInterruptVector( IRQ_PORTB, return_portb_irq );// return prev interrupt handler
-                    __enable_irq( );
-                }
-                else if ( pinNumber == 9 || pinNumber == 10 || pinNumber == 11 || pinNumber == 12 || pinNumber == 13 || pinNumber == 15 || pinNumber == 22 || pinNumber == 23 || pinNumber == 27 || pinNumber == 28 || pinNumber == 29 || pinNumber == 30 ) {
-                    NVIC_SET_PRIORITY( IRQ_PORTC, 128 );//return priority to core level
-                    __disable_irq( );
-                    attachInterruptVector( IRQ_PORTC, return_portc_irq );// return prev interrupt handler
-                    __enable_irq( );
-                }
-                else if ( pinNumber == 2 || pinNumber == 5 || pinNumber == 6 || pinNumber == 7 || pinNumber == 8 || pinNumber == 14 || pinNumber == 20 || pinNumber == 21 ) {
-                    NVIC_SET_PRIORITY( IRQ_PORTD, 128 );//return priority to core level
-                    __disable_irq( );
-                    attachInterruptVector( IRQ_PORTD, return_portd_irq );// return prev interrupt handler
-                    __enable_irq( );
-                }
-                else if ( pinNumber == 26 || pinNumber == 31 ) {
-                    NVIC_SET_PRIORITY( IRQ_PORTE, 128 );//return priority to core level
-                    __disable_irq( );
-                    attachInterruptVector( IRQ_PORTE, return_porte_irq );// return prev interrupt handler
-                    __enable_irq( );
-                }
-            }
-            _pin &= ~( ( uint64_t )1 << pinNumber );// remove pin from list
-        }*/
 #elif defined(KINETISL)
-        NVIC_SET_PRIORITY( IRQ_PORTA, return_priority_a );//set priority to new level
+        NVIC_SET_PRIORITY( IRQ_PORTA,  return_priority_a );//set priority to new level
         NVIC_SET_PRIORITY( IRQ_PORTCD, return_priority_cd );//set priority to new level
         __disable_irq( );
-        attachInterruptVector( IRQ_PORTA, return_porta_irq );// set snooze isr
+        attachInterruptVector( IRQ_PORTA,  return_porta_irq );// set snooze isr
         attachInterruptVector( IRQ_PORTCD, return_portcd_irq );// set snooze isr
         __enable_irq( );
-        if ( return_isr_a_enabled == 0 ) NVIC_DISABLE_IRQ( IRQ_PORTA );
+        if ( return_isr_a_enabled == 0 )  NVIC_DISABLE_IRQ( IRQ_PORTA );
         if ( return_isr_cd_enabled == 0 ) NVIC_DISABLE_IRQ( IRQ_PORTCD );
-        /*_pin = pin;
-        while ( __builtin_popcount( _pin ) ) {
-            uint32_t pinNumber = 31 - __builtin_clz( _pin );
-            if ( mode == VLPW ) {// if using sleep give back previous isr handler
-                if ( pinNumber == 3 || pinNumber == 4 ) {
-                    NVIC_SET_PRIORITY( IRQ_PORTA, 128 );//return priority to core level
-                    __disable_irq( );
-                    attachInterruptVector( IRQ_PORTA, return_porta_irq );// return prev interrupt handler
-                    __enable_irq( );
-                }
-                else if ( pinNumber == 2 || pinNumber == 5 || pinNumber == 6 || pinNumber == 7 || pinNumber == 8 || pinNumber == 14 || pinNumber == 20 || pinNumber == 21 || pinNumber == 9 || pinNumber == 10 || pinNumber == 11 || pinNumber == 12 || pinNumber == 13 || pinNumber == 15 || pinNumber == 22 || pinNumber == 23 ) {
-                    NVIC_SET_PRIORITY( IRQ_PORTCD, 128 );//return priority to core level
-                    __disable_irq( );
-                    attachInterruptVector( IRQ_PORTCD, return_portcd_irq );// return prev interrupt handler
-                    __enable_irq( );
-                }
-            }
-            _pin &= ~( ( uint32_t )1 << pinNumber );// remove pin from list
-        }*/
 #endif
     }
 }
@@ -309,7 +249,6 @@ void SnoozeDigital::clearIsrFlags( void ) {
  *  <#Description#>
  *******************************************************************************/
 void SnoozeDigital::isr( void ) {
-    digitalWriteFast(LED_BUILTIN, HIGH);
     uint32_t isfr_a = PORTA_ISFR;
     PORTA_ISFR = isfr_a;
 #if defined(KINETISK)
@@ -328,29 +267,32 @@ void SnoozeDigital::isr( void ) {
     uint64_t _pin = isr_pin;
     while ( __builtin_popcountll( _pin ) ) {
         uint32_t pinNumber = 63 - __builtin_clzll( _pin );
-        
         if ( pinNumber > 33 ) return;
-        
         detachDigitalInterrupt( pinNumber );// remove pin interrupt
-        
         _pin &= ~( ( uint64_t )1 << pinNumber );// remove pin from list
     }
     
-    if ( isfr_a & CORE_PIN3_BITMASK ) source = 3;
-    else if ( isfr_a & CORE_PIN4_BITMASK ) source = 4;
-#if defined(KINETISK)
-    else if ( isfr_a & CORE_PIN24_BITMASK ) source = 24;
-    else if ( isfr_a & CORE_PIN33_BITMASK ) source = 33;
-    else if ( isfr_b & CORE_PIN0_BITMASK ) source = 0;
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+    if ( isfr_a & CORE_PIN3_BITMASK )       source = 3;
+    else if ( isfr_a & CORE_PIN4_BITMASK  ) source = 4;
+    else if ( isfr_a & CORE_PIN25_BITMASK ) source = 25;
+    else if ( isfr_a & CORE_PIN26_BITMASK ) source = 26;
+    else if ( isfr_a & CORE_PIN27_BITMASK ) source = 27;
+    else if ( isfr_a & CORE_PIN28_BITMASK ) source = 28;
+    else if ( isfr_a & CORE_PIN39_BITMASK ) source = 39;
+    
+    else if ( isfr_b & CORE_PIN0_BITMASK )  source = 0;
     else if ( isfr_b & CORE_PIN1_BITMASK )  source = 1;
     else if ( isfr_b & CORE_PIN16_BITMASK ) source = 16;
     else if ( isfr_b & CORE_PIN17_BITMASK ) source = 17;
     else if ( isfr_b & CORE_PIN18_BITMASK ) source = 18;
     else if ( isfr_b & CORE_PIN19_BITMASK ) source = 19;
-    else if ( isfr_b & CORE_PIN25_BITMASK ) source = 25;
+    else if ( isfr_b & CORE_PIN29_BITMASK ) source = 29;
+    else if ( isfr_b & CORE_PIN30_BITMASK ) source = 30;
+    else if ( isfr_b & CORE_PIN31_BITMASK ) source = 31;
     else if ( isfr_b & CORE_PIN32_BITMASK ) source = 32;
-#endif
-    if ( isfr_c & CORE_PIN9_BITMASK ) source = 9;
+    
+    else if ( isfr_c & CORE_PIN9_BITMASK )  source = 9;
     else if ( isfr_c & CORE_PIN10_BITMASK ) source = 10;
     else if ( isfr_c & CORE_PIN11_BITMASK ) source = 11;
     else if ( isfr_c & CORE_PIN12_BITMASK ) source = 12;
@@ -358,23 +300,80 @@ void SnoozeDigital::isr( void ) {
     else if ( isfr_c & CORE_PIN15_BITMASK ) source = 15;
     else if ( isfr_c & CORE_PIN22_BITMASK ) source = 22;
     else if ( isfr_c & CORE_PIN23_BITMASK ) source = 23;
-#if defined(KINETISK)
-    else if ( isfr_c & CORE_PIN27_BITMASK ) source = 27;
-    else if ( isfr_c & CORE_PIN28_BITMASK ) source = 28;
-    else if ( isfr_c & CORE_PIN29_BITMASK ) source = 29;
-    else if ( isfr_c & CORE_PIN30_BITMASK ) source = 30;
-#endif
-    if ( isfr_d & CORE_PIN2_BITMASK ) source = 2;
-    else if ( isfr_d & CORE_PIN5_BITMASK ) source = 5;
+    else if ( isfr_c & CORE_PIN35_BITMASK ) source = 35;
+    else if ( isfr_c & CORE_PIN36_BITMASK ) source = 36;
+    else if ( isfr_c & CORE_PIN37_BITMASK ) source = 37;
+    else if ( isfr_c & CORE_PIN38_BITMASK ) source = 38;
+    
+    else if ( isfr_d & CORE_PIN2_BITMASK )  source = 2;
+    else if ( isfr_d & CORE_PIN5_BITMASK )  source = 5;
     else if ( isfr_d & CORE_PIN6_BITMASK )  source = 6;
     else if ( isfr_d & CORE_PIN7_BITMASK )  source = 7;
     else if ( isfr_d & CORE_PIN8_BITMASK )  source = 8;
     else if ( isfr_d & CORE_PIN14_BITMASK ) source = 14;
     else if ( isfr_d & CORE_PIN20_BITMASK ) source = 20;
     else if ( isfr_d & CORE_PIN21_BITMASK ) source = 21;
-#if defined(KINETISK)
-    if ( isfr_e & CORE_PIN26_BITMASK ) source = 26;
-    else if ( isfr_e & CORE_PIN31_BITMASK ) source = 31;
+    
+    else if ( isfr_e & CORE_PIN24_BITMASK ) source = 24;
+    else if ( isfr_e & CORE_PIN33_BITMASK ) source = 33;
+    else if ( isfr_e & CORE_PIN34_BITMASK ) source = 34;
+#elif defined(__MK20DX128__) || defined(__MK20DX256__)
+    if ( isfr_a & CORE_PIN3_BITMASK )       source = 3;
+    else if ( isfr_a & CORE_PIN4_BITMASK  ) source = 4;
+    else if ( isfr_a & CORE_PIN24_BITMASK ) source = 24;
+    else if ( isfr_a & CORE_PIN33_BITMASK ) source = 33;
+    
+    else if ( isfr_b & CORE_PIN0_BITMASK  ) source = 0;
+    else if ( isfr_b & CORE_PIN1_BITMASK  ) source = 1;
+    else if ( isfr_b & CORE_PIN16_BITMASK ) source = 16;
+    else if ( isfr_b & CORE_PIN17_BITMASK ) source = 17;
+    else if ( isfr_b & CORE_PIN18_BITMASK ) source = 18;
+    else if ( isfr_b & CORE_PIN19_BITMASK ) source = 19;
+    else if ( isfr_b & CORE_PIN25_BITMASK ) source = 25;
+    else if ( isfr_b & CORE_PIN32_BITMASK ) source = 32;
+    
+    else if ( isfr_c & CORE_PIN9_BITMASK )  source = 9;
+    else if ( isfr_c & CORE_PIN10_BITMASK ) source = 10;
+    else if ( isfr_c & CORE_PIN11_BITMASK ) source = 11;
+    else if ( isfr_c & CORE_PIN12_BITMASK ) source = 12;
+    else if ( isfr_c & CORE_PIN13_BITMASK ) source = 13;
+    else if ( isfr_c & CORE_PIN15_BITMASK ) source = 15;
+    else if ( isfr_c & CORE_PIN22_BITMASK ) source = 22;
+    else if ( isfr_c & CORE_PIN23_BITMASK ) source = 23;
+    else if ( isfr_c & CORE_PIN27_BITMASK ) source = 27;
+    else if ( isfr_c & CORE_PIN28_BITMASK ) source = 28;
+    else if ( isfr_c & CORE_PIN29_BITMASK ) source = 29;
+    else if ( isfr_c & CORE_PIN30_BITMASK ) source = 30;
+    
+    else if ( isfr_d & CORE_PIN2_BITMASK )  source = 2;
+    else if ( isfr_d & CORE_PIN5_BITMASK )  source = 5;
+    else if ( isfr_d & CORE_PIN6_BITMASK )  source = 6;
+    else if ( isfr_d & CORE_PIN7_BITMASK )  source = 7;
+    else if ( isfr_d & CORE_PIN8_BITMASK )  source = 8;
+    else if ( isfr_d & CORE_PIN14_BITMASK ) source = 14;
+    else if ( isfr_d & CORE_PIN20_BITMASK ) source = 20;
+    else if ( isfr_d & CORE_PIN21_BITMASK ) source = 21;
+#elif defined(__MKL26Z64__)
+    if ( isfr_a & CORE_PIN3_BITMASK )       source = 3;
+    else if ( isfr_a & CORE_PIN4_BITMASK  ) source = 4;
+    
+    else if ( isfr_c & CORE_PIN9_BITMASK )  source = 9;
+    else if ( isfr_c & CORE_PIN10_BITMASK ) source = 10;
+    else if ( isfr_c & CORE_PIN11_BITMASK ) source = 11;
+    else if ( isfr_c & CORE_PIN12_BITMASK ) source = 12;
+    else if ( isfr_c & CORE_PIN13_BITMASK ) source = 13;
+    else if ( isfr_c & CORE_PIN15_BITMASK ) source = 15;
+    else if ( isfr_c & CORE_PIN22_BITMASK ) source = 22;
+    else if ( isfr_c & CORE_PIN23_BITMASK ) source = 23;
+    
+    else if ( isfr_d & CORE_PIN2_BITMASK )  source = 2;
+    else if ( isfr_d & CORE_PIN5_BITMASK )  source = 5;
+    else if ( isfr_d & CORE_PIN6_BITMASK )  source = 6;
+    else if ( isfr_d & CORE_PIN7_BITMASK )  source = 7;
+    else if ( isfr_d & CORE_PIN8_BITMASK )  source = 8;
+    else if ( isfr_d & CORE_PIN14_BITMASK ) source = 14;
+    else if ( isfr_d & CORE_PIN20_BITMASK ) source = 20;
+    else if ( isfr_d & CORE_PIN21_BITMASK ) source = 21;
 #endif
 }
 

@@ -42,13 +42,19 @@ private:
     uint8_t  pin;
     uint16_t threshold;
     uint32_t GENCS;
+    uint32_t THRESHOLD;
 #if defined(HAS_KINETIS_TSI)
     uint32_t SCANC;
     uint32_t PEN;
-    uint32_t THRESHOLD;
 #elif defined(HAS_KINETIS_TSI_LITE)
     uint32_t DATA;
-    uint32_t THRESHOLD;
+#endif
+    
+#if defined(HAS_KINETIS_TSI_LITE)
+    uint32_t PSR;
+    uint32_t CMR;
+    uint32_t CSR;
+    bool timer_clock_active;
 #endif
     //uint8_t return_priority;
     //uint8_t return_isr_enabled;
@@ -56,7 +62,15 @@ private:
     volatile uint32_t return_core_pin_config;
     //bool OSC_clock_active;
 public:
-    SnoozeTouch( void ) : pin( 0x03 ) {
+    SnoozeTouch( void ) : pin( 0x03 ), threshold( 0 ), GENCS( 0 ),
+                          THRESHOLD( 0 ),
+#if defined(HAS_KINETIS_TSI)
+                          SCANC( 0 ), PEN( 0 )
+#elif defined(HAS_KINETIS_TSI_LITE)
+                          DATA( 0 ),PSR( 0 ), CMR( 0 ), CSR( 0 ),
+                          timer_clock_active( 0 )
+#endif
+    {
         isDriver = true;
     }
     void pinMode( int _pin, int thresh );
