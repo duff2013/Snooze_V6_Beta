@@ -71,13 +71,10 @@ int SnoozeClass::sleep( SNOOZE_BLOCK ) {
     SnoozeBlock *p = &configuration;
     p->mode = VLPW;
     //p->mode = VLPS;
-    
     p->enableDriver( );
-    
     pee_blpi( );
-    
     enter_vlpr( );
-    //vlps(0);
+    //vlps( );
     vlpw( );
     exit_vlpr( );
     blpi_pee( );

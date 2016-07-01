@@ -18,7 +18,6 @@ Core Drivers configure wakeup events, Drivers are further explained later.<br>
 4. alarm - Use the RTC clock to wake your Teensy.
 5. compare - Setup a volatgae crossing to wake your Teensy.
 
-<br>
 Next we see the SnoozeBlock only has the timer and digital drivers installed. Even though the Touch driver is loaded it is not installed so it won't get called. In this example either the timer expires or the digital pin is lifted will wake the Teensy up.<br>
 ```c++
 #include <Snooze.h>
@@ -31,34 +30,34 @@ SnoozeTimer timer;
 SnoozeBlock config(timer, digital);
 
 void setup() {
-    pinMode(LED_BUILTIN, OUTPUT);
-    /********************************************************
-     * Set Low Power Timer wake up in milliseconds.
-     ********************************************************/
-    timer.setTimer(5000);// milliseconds
-    /********************************************************
-     * Define digital pins for waking the teensy up. This
-     * combines pinMode and attachInterrupt in one function.
-     *
-     * Teensy 3.x
-     * Digital pins: 2,4,6,7,9,10,11,13,16,21,22,26,30,33
-     *
-     * Teensy LC
-     * Digital pins: 2,6,7,9,10,11,16,21,22
-     ********************************************************/
-    digital.pinMode(21, INPUT_PULLUP, RISING);//pin, mode, type
-    digital.pinMode(22, INPUT_PULLUP, RISING);//pin, mode, type
+pinMode(LED_BUILTIN, OUTPUT);
+/********************************************************
+* Set Low Power Timer wake up in milliseconds.
+********************************************************/
+timer.setTimer(5000);// milliseconds
+/********************************************************
+* Define digital pins for waking the teensy up. This
+* combines pinMode and attachInterrupt in one function.
+*
+* Teensy 3.x
+* Digital pins: 2,4,6,7,9,10,11,13,16,21,22,26,30,33
+*
+* Teensy LC
+* Digital pins: 2,6,7,9,10,11,16,21,22
+********************************************************/
+digital.pinMode(21, INPUT_PULLUP, RISING);//pin, mode, type
+digital.pinMode(22, INPUT_PULLUP, RISING);//pin, mode, type
 }
 
 void loop() {
-    /********************************************************
-     * feed the sleep function its wakeup parameters. Then go 
-     * to deepSleep.
-     ********************************************************/
-    int who = Snooze.deepSleep( config );// return module that woke processor
-    digitalWrite(LED_BULITIN, HIGH);
-    delay(100);
-    digitalWrite(LED_BULITIN, LOW);
+/********************************************************
+* feed the sleep function its wakeup parameters. Then go 
+* to deepSleep.
+********************************************************/
+int who = Snooze.deepSleep( config );// return module that woke processor
+digitalWrite(LED_BULITIN, HIGH);
+delay(100);
+digitalWrite(LED_BULITIN, LOW);
 }
 ```
 <b>Lets break out each part out so we can see what is going on here:</b><br>
