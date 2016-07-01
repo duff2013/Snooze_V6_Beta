@@ -1,14 +1,24 @@
 # Snooze v6.0.1 - Beta
 
-<h4>The new api. This is still beta so it might be broken at times. I'll update here once it becomes stable. Must have latest Teensyduino installed from github https://github.com/PaulStoffregen/cores for Teensy 3.5 support.</h4>
+<h4>This is still beta so it might be broken at times and will be merged once it becomes more stable. You must have the latest Teensyduino installed from github @ https://github.com/PaulStoffregen/cores for Teensy 3.5 support.</h4>
 
 ---
 For those using v5 of Snooze the reason for the change is that new Teensy's are in the pipeline and updating this fairly extensive library became to difficult because each new processor introduced has its own set of Low Power functionality. Now the library is divided into three classes:<br>
 ![alt text](https://github.com/duff2013/Snooze_V6_Beta/blob/master/images/Snooze_Class_Layout/Slide1.png "Snooze Class Layout")<br>
 As you can see the Drivers are now separated from the SnoozeBlock Class. Before these drivers where part of the SnoozeBlock which made it difficult to add new functionalities. Each Teensy can now have driver classes designed specifically for them. Users can install their own drivers also if they wish also, see the skeltonClass example. Snooze uses something similar to the Audio library's conventions for adding drivers. As an added benefit, only the drivers that are installed are called, before all drivers where called just not used if not configured, this should add some performance benefits.
-<br>
 ---
-Here is a basic example of the new api. As you can see we load three Driver Classes - touch, digital, timer. Next we see the SnoozeBlock only has the timer and digital drivers installed. Even though the Touch driver is loaded it is not installed so it won't get called. In this example either the timer expires or the digital pin is lifted will wake the Teensy up.
+Here is a basic example of the new api. As you can see we load three of Core Driver Classes - touch, digital, timer.<br>
+What are the Core Drivers?<br>
+Core Drivers configures wakeup events, Drivers are further explained later.<br>
+
+1. touch - Using the Kinetis touch module to wake your Teensy. 
+2. digital - Wake your Teensy with a RISING or FALLING event on a certian pin.
+3. timer - Use the Low Power timer in milliseconds to wake your Teensy,
+4. alarm - Use the RTC clock to wake your Teensy.
+5. compare - Setup a volatgae crossing to wake your Teensy.
+
+<br>
+Next we see the SnoozeBlock only has the timer and digital drivers installed. Even though the Touch driver is loaded it is not installed so it won't get called. In this example either the timer expires or the digital pin is lifted will wake the Teensy up.<br>
 ```c++
 #include <Snooze.h>
 // Load drivers
