@@ -1,6 +1,6 @@
 # Snooze v6.0.1 - Beta
 
-####This is still beta so it might be broken at times and will be merged once it becomes more stable. You must have the latest [Teensyduino](https://github.com/PaulStoffregen/cores) to have Teensy 3.5 support.</h4>
+####This is still beta so it might be broken at times and will be merged once it becomes more stable. You must have the latest [Teensyduino](https://forum.pjrc.com/threads/35315-Teensyduino-1-29-Beta-4-Available) installer to have Teensy 3.5 support.</h4>
 
 ---
 For those using v5 of Snooze the reason for the change is that new Teensy's are in the pipeline and updating this fairly extensive library became to difficult because each new processor introduced has its own set of Low Power functionality. Now the library is divided into three classes:<br>
