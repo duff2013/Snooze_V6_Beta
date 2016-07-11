@@ -61,6 +61,7 @@ private:
     uint8_t  return_priority_e;
 #elif defined(KINETISL)
     uint32_t pin;
+    static uint32_t isr_pin;
     uint8_t  irqType[23];
     void ( * return_porta_irq ) ( void );
     void ( * return_portcd_irq )( void );

@@ -33,10 +33,10 @@
 /********************************************************************/
 // module_enable defines
 #define LLWU_LPTMR_MOD      0x01
-#ifdef KINETISK
+//#ifdef KINETISK
 #define LLWU_RTCA_MOD       0x02
 #define LLWU_RTCS_MOD       0x04
-#endif
+//#endif
 #define LLWU_CMP0_MOD       0x08
 #define LLWU_CMP1_MOD       0x10
 #ifdef KINETISK

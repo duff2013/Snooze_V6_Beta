@@ -1,8 +1,11 @@
-><b>Updated (/6/29/16 v6.0.1)</b><br>
+><b>Updated (7/11/16 v6.0.2)</b><br>
+* Teensy LC now compiles.<br>
+
+><b>Updated (6/29/16 v6.0.1)</b><br>
 * Initial Teensy 3.5 support.<br>
 * Fixed Touch and Compare modules for Teensy LC.<br>
 
-><b>Updated (/4/20/16 v6.0.0)</b><br>
+><b>Updated (4/20/16 v6.0.0)</b><br>
 * New API.<br>
 
 ><b>Updated (1/12/16 v5.0.1)</b><br>

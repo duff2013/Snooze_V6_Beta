@@ -9,16 +9,20 @@
 #include "SnoozeDigital.h"
 #include "wake.h"
 
+#if defined(KINETISK)
 uint64_t SnoozeDigital::isr_pin = 0;
+#elif defined(KINETISL)
+uint32_t SnoozeDigital::isr_pin = 0;
+#endif
 
 /*******************************************************************************
- *  <#Description#>
+ *  Same as Arduino pinMode + isr trigger type
  *
- *  @param _pin <#_pin description#>
- *  @param mode <#mode description#>
- *  @param type <#type description#>
+ *  @param _pin Teensy Pin
+ *  @param mode INPUT, INPUT_PULLUP
+ *  @param type CHANGE, FALLING or LOW, RISING or HIGH
  *
- *  @return <#return value description#>
+ *  @return Teensy Pin
  *******************************************************************************/
 int SnoozeDigital::pinMode( int _pin, int mode, int type ) {
     if ( _pin >= CORE_NUM_DIGITAL ) return -1;
@@ -36,7 +40,7 @@ int SnoozeDigital::pinMode( int _pin, int mode, int type ) {
 }
 
 /*******************************************************************************
- *  <#Description#>
+ *  Enable digital interrupt and configure the pin
  *******************************************************************************/
 void SnoozeDigital::enableDriver( void ) {
     if ( mode == RUN_LP ) { return; }
@@ -125,12 +129,13 @@ void SnoozeDigital::enableDriver( void ) {
     }
 #elif defined(KINETISL)
     uint32_t _pin = pin;
+    isr_pin = pin;
     if ( mode == VLPW || mode == VLPS ) {// if using sleep must setup pin interrupt to wake
         int priority = nvic_execution_priority( );// get current priority
         // if running from interrupt set priority higher than current interrupt
         priority = ( priority < 256 ) && ( ( priority - 16 ) > 0 ) ? priority - 16 : 128;
         return_priority_a = NVIC_GET_PRIORITY( IRQ_PORTA );//get current priority
-        return_priority_b = NVIC_GET_PRIORITY( IRQ_PORTCD );//get current priority
+        return_priority_cd = NVIC_GET_PRIORITY( IRQ_PORTCD );//get current priority
         NVIC_SET_PRIORITY( IRQ_PORTA, priority );//set priority to new level
         NVIC_SET_PRIORITY( IRQ_PORTCD, priority );//set priority to new level
         __disable_irq( );
@@ -143,26 +148,29 @@ void SnoozeDigital::enableDriver( void ) {
     _pin = pin;
     while ( __builtin_popcount( _pin ) ) {
         uint32_t pinNumber  = 31 - __builtin_clz( _pin );// get pin
-        uint32_t _mode = irqType[pinNumber] >> 4;// get type
-        uint32_t _type = irqType[pinNumber] & 0x0F;// get mode
+        
+        if ( pinNumber > 33 ) break;
+        
+        uint32_t pin_mode = irqType[pinNumber] >> 4;// get type
+        uint32_t pin_type = irqType[pinNumber] & 0x0F;// get mode
         
         volatile uint32_t *config;
         config = portConfigRegister( pinNumber );
         return_core_pin_config[pinNumber] = *config;
         
         if ( mode == INPUT || mode == INPUT_PULLUP ) {// setup pin mode/type/interrupt
-            *portModeRegister( pinNumber ) &= ~SnoozeDigitalPinToBitMask( pinNumber ); // TODO: atomic
+            *portModeRegister( pinNumber ) &= ~digitalPinToBitMask( pinNumber ); // TODO: atomic
             if ( mode == INPUT ) *config = PORT_PCR_MUX( 1 );
             else *config = PORT_PCR_MUX( 1 ) | PORT_PCR_PE | PORT_PCR_PS;// pullup
             if ( mode == VLPW || mode == VLPS ) {
-               attachDigitalInterrupt( pinNumber, _type );// set pin interrupt
+               attachDigitalInterrupt( pinNumber, pin_type );// set pin interrupt
             }
             else {
                 llwu_configure_pin_mask( pinNumber, mode );
             }
         } else {
             //pinMode( pinNumber, _mode );
-            SnoozeDigitalWriteFast( pinNumber, _type );
+            digitalWriteFast( pinNumber, pin_type );
         }
         _pin &= ~( ( uint32_t )1 << pinNumber );// remove pin from list
     }
@@ -170,7 +178,7 @@ void SnoozeDigital::enableDriver( void ) {
 }
 
 /*******************************************************************************
- *  <#Description#>
+ *  Disable interrupt and configure pin to orignal state.
  *******************************************************************************/
 void SnoozeDigital::disableDriver( void ) {
     if ( mode == RUN_LP ) { return; }
@@ -239,14 +247,14 @@ void SnoozeDigital::disableDriver( void ) {
 }
 
 /*******************************************************************************
- *  <#Description#>
+ *  for LLWU wakeup ISR to call actual digital ISR code
  *******************************************************************************/
 void SnoozeDigital::clearIsrFlags( void ) {
     isr( );
 }
 
 /*******************************************************************************
- *  <#Description#>
+ *  this gets called when we wake up by NVIC or LLWU
  *******************************************************************************/
 void SnoozeDigital::isr( void ) {
     uint32_t isfr_a = PORTA_ISFR;
@@ -263,7 +271,7 @@ void SnoozeDigital::isr( void ) {
     PORTD_ISFR = isfr_d;
 
     if ( mode == LLS || mode == VLLS3 ) return;
-    
+#if defined(KINETISK)
     uint64_t _pin = isr_pin;
     while ( __builtin_popcountll( _pin ) ) {
         uint32_t pinNumber = 63 - __builtin_clzll( _pin );
@@ -271,6 +279,16 @@ void SnoozeDigital::isr( void ) {
         detachDigitalInterrupt( pinNumber );// remove pin interrupt
         _pin &= ~( ( uint64_t )1 << pinNumber );// remove pin from list
     }
+#elif defined(KINETISL)
+    uint32_t _pin = isr_pin;
+    while ( __builtin_popcount( _pin ) ) {
+        uint32_t pinNumber = 31 - __builtin_clzll( _pin );
+        if ( pinNumber > 33 ) return;
+        detachDigitalInterrupt( pinNumber );// remove pin interrupt
+        _pin &= ~( ( uint32_t )1 << pinNumber );// remove pin from list
+    }
+#endif
+
     
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
     if ( isfr_a & CORE_PIN3_BITMASK )       source = 3;
@@ -378,10 +396,10 @@ void SnoozeDigital::isr( void ) {
 }
 
 /*******************************************************************************
- *  <#Description#>
+ *  sleep pin wakeups go through NVIC
  *
- *  @param pin  <#pin description#>
- *  @param mode <#mode description#>
+ *  @param pin  Teensy Pin
+ *  @param mode CHANGE, FALLING or LOW, RISING or HIGH
  *******************************************************************************/
 void SnoozeDigital::attachDigitalInterrupt( uint8_t pin, int mode ) {
     volatile uint32_t *config;
@@ -405,13 +423,12 @@ void SnoozeDigital::attachDigitalInterrupt( uint8_t pin, int mode ) {
     cfg |= mask;
     *config = cfg;			// enable the new interrupt
     __enable_irq( );
-    
 }
 
 /*******************************************************************************
- *  <#Description#>
+ *  remove interrupt from pin
  *
- *  @param pin <#pin description#>
+ *  @param pin Teensy Pin
  *******************************************************************************/
 void SnoozeDigital::detachDigitalInterrupt( uint8_t pin ) {
     volatile uint32_t *config;

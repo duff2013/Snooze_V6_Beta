@@ -1,6 +1,6 @@
 /***************************************
- * This shows all the wakeups for deepSleep 
- * Expect IDD of  around 230uA (Teensy 3.x) 
+ * This shows all the wakeups for deepSleep
+ * Expect IDD of  around 230uA (Teensy 3.x)
  * and IDD of around 150uA for (Teensy LC).
  ****************************************/
 #include <Snooze.h>
@@ -16,9 +16,14 @@ SnoozeAlarm	alarm;
 /***********************************************************
  * Teensy 3.5/LC can't use Timer Driver with either Touch or
  * Compare Drivers and Touch can't be used with Compare.
+ *
+ * Teensy LC does not have a rtc so Alarm driver can't be
+ * used as of yet.
  ***********************************************************/
+#ifdef KINETISK
 SnoozeBlock config_teensy35(touch, digital, alarm);
-SnoozeBlock config_teensyLC(compare, digital, alarm);
+#endif
+SnoozeBlock config_teensyLC(compare, digital, timer);
 /***********************************************************
  * Teensy 3.2 can use any Core Drivers together.
  ***********************************************************/
@@ -38,13 +43,15 @@ void setup() {
      ********************************************************/
     digital.pinMode(21, INPUT_PULLUP, RISING);//pin, mode, type
     digital.pinMode(22, INPUT_PULLUP, RISING);//pin, mode, type
-
+    
     /********************************************************
      * Teensy 3.x only currently.
      *
      * Set RTC alarm wake up in (hours, minutes, seconds).
      ********************************************************/
+#ifdef KINETISK
     alarm.setAlarm(0, 0, 10);// hour, min, sec
+#endif
     /********************************************************
      * Set Low Power Timer wake up in milliseconds.
      ********************************************************/
@@ -83,7 +90,7 @@ void setup() {
 void loop() {
     int who;
     /********************************************************
-     * feed the sleep function its wakeup parameters. Then go 
+     * feed the sleep function its wakeup parameters. Then go
      * to deepSleep.
      ********************************************************/
 #if defined(__MK66FX1M0__)

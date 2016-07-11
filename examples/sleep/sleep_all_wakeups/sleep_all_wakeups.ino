@@ -20,8 +20,10 @@ SnoozeAlarm	alarm;
  * Teensy 3.5/LC can't use Timer Driver with either Touch or
  * Compare Drivers and Touch can't be used with Compare.
  ***********************************************************/
+#ifdef KINETISK
 SnoozeBlock config_teensy35(touch, digital, alarm);
-SnoozeBlock config_teensyLC(compare, digital, alarm);
+#endif
+SnoozeBlock config_teensyLC(compare, digital, timer);
 /***********************************************************
  * Teensy 3.2 can use any Core Drivers together.
  ***********************************************************/
@@ -47,7 +49,9 @@ void setup() {
      *
      * Set RTC alarm wake up in (hours, minutes, seconds).
      ********************************************************/
+#ifdef KINETISK
     alarm.setAlarm(0, 0, 10);// hour, min, sec
+#endif
     /********************************************************
      * Set Low Power Timer wake up in milliseconds.
      ********************************************************/
