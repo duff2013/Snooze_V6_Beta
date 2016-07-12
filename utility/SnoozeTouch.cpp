@@ -84,11 +84,11 @@ void SnoozeTouch::disableDriver( void ) {
  *  <#Description#>
  *******************************************************************************/
 void SnoozeTouch::enableDriver( void ) {
-    //if ( mode == RUN_LP || mode == VLPW ) return;
+    if ( mode == RUN_LP || mode == VLPW ) return;
     uint8_t _pin = pin;
     if ( _pin >= NUM_DIGITAL_PINS ) return;
     
-    //llwu_configure_modules_mask( LLWU_TSI_MOD );
+    llwu_configure_modules_mask( LLWU_TSI_MOD );
     
 #if defined(HAS_KINETIS_TSI_LITE)
     if ( SIM_SCGC5 & SIM_SCGC5_LPTIMER ) timer_clock_active = true;
@@ -142,9 +142,9 @@ void SnoozeTouch::enableDriver( void ) {
                   ( TSI_GENCS_TSIEN         )
                   );
 #elif defined(HAS_KINETIS_TSI_LITE)
-    TSI0_TSHD = ( _threshold << 16) & 0xFFFF0000;
+    TSI0_TSHD = ( _threshold << 16 ) & 0xFFFF0000;
     TSI0_DATA = TSI_DATA_TSICH( ch );
-    TSI0_GENCS = (
+    TSI0_GENCS =  (
                   ( TSI_GENCS_NSCN( 9 )    ) |
                   ( TSI_GENCS_PS( 2 )      ) |
                   ( TSI_GENCS_STPE         ) |
@@ -168,6 +168,7 @@ void SnoozeTouch::enableDriver( void ) {
  *  <#Description#>
  *******************************************************************************/
 void SnoozeTouch::clearIsrFlags( void ) {
+    
     isr( );
 }
 /*******************************************************************************
