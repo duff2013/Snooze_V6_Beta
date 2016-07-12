@@ -123,7 +123,7 @@ void SnoozeDigital::enableDriver( void ) {
             }
         } else {
             //pinMode( pinNumber, pin_mode );
-            digitalWriteFast( pinNumber, pin_type );
+            //digitalWriteFast( pinNumber, pin_type );
         }
         _pin &= ~( ( uint64_t )1 << pinNumber );// remove pin from list
     }
@@ -131,6 +131,12 @@ void SnoozeDigital::enableDriver( void ) {
     uint32_t _pin = pin;
     isr_pin = pin;
     if ( mode == VLPW || mode == VLPS ) {// if using sleep must setup pin interrupt to wake
+        return_isr_a_enabled  = NVIC_IS_ENABLED( IRQ_PORTA );
+        return_isr_cd_enabled = NVIC_IS_ENABLED( IRQ_PORTCD );
+        NVIC_DISABLE_IRQ(IRQ_PORTA);
+        NVIC_DISABLE_IRQ(IRQ_PORTCD);
+        NVIC_CLEAR_PENDING(IRQ_PORTA);
+        NVIC_CLEAR_PENDING(IRQ_PORTCD);
         int priority = nvic_execution_priority( );// get current priority
         // if running from interrupt set priority higher than current interrupt
         priority = ( priority < 256 ) && ( ( priority - 16 ) > 0 ) ? priority - 16 : 128;
@@ -144,6 +150,8 @@ void SnoozeDigital::enableDriver( void ) {
         attachInterruptVector( IRQ_PORTA, isr );// set snooze isr
         attachInterruptVector( IRQ_PORTCD, isr );// set snooze isr
         __enable_irq( );
+        NVIC_ENABLE_IRQ( IRQ_PORTA );
+        NVIC_ENABLE_IRQ( IRQ_PORTCD );
     }
     _pin = pin;
     while ( __builtin_popcount( _pin ) ) {
@@ -158,19 +166,19 @@ void SnoozeDigital::enableDriver( void ) {
         config = portConfigRegister( pinNumber );
         return_core_pin_config[pinNumber] = *config;
         
-        if ( mode == INPUT || mode == INPUT_PULLUP ) {// setup pin mode/type/interrupt
+        if ( pin_mode == INPUT || pin_mode == INPUT_PULLUP ) {// setup pin mode/type/interrupt
             *portModeRegister( pinNumber ) &= ~digitalPinToBitMask( pinNumber ); // TODO: atomic
-            if ( mode == INPUT ) *config = PORT_PCR_MUX( 1 );
+            if ( pin_mode == INPUT ) *config = PORT_PCR_MUX( 1 );
             else *config = PORT_PCR_MUX( 1 ) | PORT_PCR_PE | PORT_PCR_PS;// pullup
-            if ( mode == VLPW || mode == VLPS ) {
+            if ( pin_mode == VLPW || pin_mode == VLPS ) {
                attachDigitalInterrupt( pinNumber, pin_type );// set pin interrupt
             }
             else {
-                llwu_configure_pin_mask( pinNumber, mode );
+                llwu_configure_pin_mask( pinNumber, pin_mode );
             }
         } else {
-            //pinMode( pinNumber, _mode );
-            digitalWriteFast( pinNumber, pin_type );
+            //pinMode( pinNumber, pin_mode );
+            //digitalWriteFast( pinNumber, pin_type );
         }
         _pin &= ~( ( uint32_t )1 << pinNumber );// remove pin from list
     }
@@ -189,11 +197,7 @@ void SnoozeDigital::disableDriver( void ) {
         
         if ( pinNumber > 33 ) break;
         
-#ifdef KINETISK
         *portModeRegister( pinNumber ) = 0;
-#else
-        *portModeRegister( pinNumber ) &= ~digitalPinToBitMask( pinNumber );
-#endif
         volatile uint32_t *config;
         config = portConfigRegister( pinNumber );
         *config = return_core_pin_config[pinNumber];
@@ -207,6 +211,7 @@ void SnoozeDigital::disableDriver( void ) {
         
         if ( pinNumber > 33 ) break;
         
+        *portModeRegister( pinNumber ) &= ~digitalPinToBitMask( pinNumber );
         volatile uint32_t *config;
         config = portConfigRegister( pinNumber );
         *config = return_core_pin_config[pinNumber];

@@ -231,6 +231,7 @@ extern "C" {
     
     static inline
     uint32_t llwu_clear_flags( void ) {
+        
 #if defined(HAS_KINETIS_LLWU_32CH)
         uint32_t flag = ( LLWU_PF1 | LLWU_PF2<<8 | LLWU_PF3<<16 | LLWU_MF5<<24 );
         LLWU_PF1 = 0xFF;
