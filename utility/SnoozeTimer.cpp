@@ -40,6 +40,7 @@ void SnoozeTimer::disableDriver( void ) {
         attachInterruptVector( IRQ_LPTMR, return_lptmr_irq );// return prev interrupt
         __enable_irq( );
     }
+    systick_millis_count += period;
     LPTMR0_PSR = PSR;
     LPTMR0_CMR = CMR;
     LPTMR0_CSR = CSR;

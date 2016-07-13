@@ -36,7 +36,6 @@ void SnoozeAlarm::setAlarm(  uint8_t hours, uint8_t minutes, uint8_t seconds ) {
  *  <#Description#>
  *******************************************************************************/
 void SnoozeAlarm::disableDriver( void ) {
-    
     if ( mode == RUN_LP ) { return; }
     if ( mode == VLPW || mode == VLPS ) {
         if ( return_isr_enabled == 0 )  NVIC_DISABLE_IRQ( IRQ_RTC_ALARM ); //disable irq

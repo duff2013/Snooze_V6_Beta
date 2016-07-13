@@ -1,5 +1,5 @@
 /***********************************************************************************
- * Low Power Library for Teensy LC/3.x
+ * Low Power Library for Teensy 3.x
  * Copyright (c) 2016, Colin Duffy https://github.com/duff2013
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,39 +19,27 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- *********************************************************************************
- *  Snooze.cpp
- *  Teensy 3.x/LC
+ ************************************************************************************
+ *  SnoozeAudio.h
+ *  Teensy 3.x
  *
- * Purpose:    Provides routines for configuring the Teensy for low power.
+ * Purpose: Teensy 3.x Audio Library Driver Snooze compatibility
  *
- * NOTE:       None
- *******************************************************************************/
-#ifndef Snooze_h
-#define Snooze_h
+ ***********************************************************************************/
+#ifndef SnoozeAudio_h
+#define SnoozeAudio_h
 
-/***************************************************************************/
 #include "Arduino.h"
 #include "SnoozeBlock.h"
-#include "utility/SnoozeTimer.h"
-#include "utility/SnoozeAlarm.h"
-#include "utility/SnoozeTouch.h"
-#include "utility/SnoozeCompare.h"
-#include "utility/SnoozeDigital.h"
-#include "utility/SnoozeAudio.h"
-/***************************************************************************/
-class SnoozeClass {
+
+class SnoozeAudio : public SnoozeBlock {
 private:
-    static volatile uint32_t PCR3;
+    virtual void disableDriver( void );
+    virtual void enableDriver( void );
 public:
-    SnoozeClass( void );
-    static void idle ( SNOOZE_BLOCK );
-    static int source( SNOOZE_BLOCK );
-    /* sleep functions */
-    static int sleep    (SNOOZE_BLOCK );
-    static int deepSleep( SNOOZE_BLOCK, SLEEP_MODE mode = LLS );
-    static int hibernate( SNOOZE_BLOCK,  SLEEP_MODE mode = LLS );
+    SnoozeAudio( void )
+    {
+        isDriver = true;
+    }
 };
-extern SnoozeClass Snooze;
-/***************************************************************************/
-#endif /* defined(Snooze_h) */
+#endif /* defined(SnoozeAudio_h) */

@@ -1,4 +1,4 @@
-# Snooze v6.0.2 - Beta
+# Snooze v6.0.3 - Beta
 
 ####This is still beta so it might be broken at times and will be merged once it becomes more stable. You must have the latest [Teensyduino](http://www.pjrc.com/teensy/td_download.html) installer to have Teensy 3.5 support.</h4>
 

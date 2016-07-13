@@ -1,3 +1,8 @@
+><b>Updated (7/12/16 v6.0.3)</b><br>
+* Update License.<br>
+* Fix core millis count for low power timer wakeup.<br>
+* Add driver for Audio Library.<br>
+
 ><b>Updated (7/11/16 v6.0.2)</b><br>
 * Teensy LC now compiles.<br>
 

@@ -1,6 +1,6 @@
 /***********************************************************************************
- Low Power Library for Teensy LC/3.x
- * Copyright (c) 2014, Colin Duffy https://github.com/duff2013
+ * Low Power Library for Teensy LC/3.x
+ * Copyright (c) 2016, Colin Duffy https://github.com/duff2013
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -47,7 +47,7 @@ private:
     uint32_t IER;
     bool SIM_SCGC6_clock_active;
 public:
-    SnoozeAlarm(void) : TAR( false ), IER( false ),
+    SnoozeAlarm( void ) : TAR( false ), IER( false ),
                         SIM_SCGC6_clock_active( false )
     {
         isDriver = true;
