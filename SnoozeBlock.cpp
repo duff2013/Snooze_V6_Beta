@@ -1,5 +1,5 @@
 /***********************************************************************************
- Low Power Library for Teensy LC/3.x
+ * Low Power Library for Teensy LC/3.x
  * Copyright (c) 2014, Colin Duffy https://github.com/duff2013
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy

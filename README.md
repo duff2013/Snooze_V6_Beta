@@ -1,11 +1,19 @@
 # Snooze v6.0.3 - Beta
 
-####This is still beta so it might be broken at times and will be merged once it becomes more stable. You must have the latest [Teensyduino](http://www.pjrc.com/teensy/td_download.html) installer to have Teensy 3.5 support.</h4>
+####This is still beta and will be merged once it becomes stable. You must have the latest [Teensyduino](http://www.pjrc.com/teensy/td_download.html) installed.</h4>
 
 ---
 For those using v5 of Snooze the reason for the change is that new Teensy's are in the pipeline and updating this fairly extensive library became to difficult because each new processor introduced has its own set of Low Power functionality. Now the library is divided into three classes:<br>
 ![alt text](https://github.com/duff2013/Snooze_V6_Beta/blob/master/images/Snooze_Class_Layout/Slide1.png "Snooze Class Layout")<br>
 As you can see the Drivers are now separated from the SnoozeBlock Class. Before these drivers where part of the SnoozeBlock which made it difficult to add new functionalities. Each Teensy can now have driver classes designed specifically for them. Users can install their own drivers also if they wish also, see the skeltonClass example. Snooze uses something similar to the Audio library's conventions for adding drivers. As an added benefit, only the drivers that are installed are called, before all drivers where called just not used if not configured, this should add some performance benefits.
+
+Here are some new features and enhancments over Version 5:
+* Three teir class structure now means easier and faster debug and development of Snooze.
+* All core drivers save and restore all relevent registers and such before/after sleeping. So things like HardwareSerial will just work if using one of its pins as a digital wakeup event. 
+* Millis is updated when using Timer driver wakeup. Might implement this for other wakeup drivers also.
+* Audio library plays nice with Snooze now by using the SnoozeAudio core driver.
+* REDUCED_CPU_BLOCK does not mess up the millis anymore.
+* Add and subtract drivers from SnoozeBlock(s), now you can get creative with SnoozeBlocks!
 
 ---
 Here is a basic example of the new api. As you can see we load three of Core Driver Classes - touch, digital, timer.<br>

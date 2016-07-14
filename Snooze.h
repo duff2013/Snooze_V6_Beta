@@ -1,4 +1,4 @@
-/***********************************************************************************
+/******************************************************************************
  * Low Power Library for Teensy LC/3.x
  * Copyright (c) 2016, Colin Duffy https://github.com/duff2013
  *
@@ -19,7 +19,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- *********************************************************************************
+ ******************************************************************************
  *  Snooze.cpp
  *  Teensy 3.x/LC
  *
