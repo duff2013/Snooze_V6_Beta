@@ -8,6 +8,10 @@
 #include "Arduino.h"
 #include "SnoozeCompare.h"
 #include "wake.h"
+
+#ifndef CMP_CR1_TRIGM
+  #define CMP_CR1_TRIGM (uint8_t)0x20 // Trigger Mode Enable
+#endif
 /*******************************************************************************
  *  <#Description#>
  *
