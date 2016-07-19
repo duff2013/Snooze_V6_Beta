@@ -63,9 +63,9 @@ void loop() {
 * to deepSleep.
 ********************************************************/
 int who = Snooze.deepSleep( config );// return module that woke processor
-digitalWrite(LED_BULITIN, HIGH);
+digitalWrite(LED_BUILTIN, HIGH);
 delay(100);
-digitalWrite(LED_BULITIN, LOW);
+digitalWrite(LED_BUILTIN, LOW);
 }
 ```
 <b>Lets break out each part out so we can see what is going on here:</b><br>
