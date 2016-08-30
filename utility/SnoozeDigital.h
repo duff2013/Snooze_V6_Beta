@@ -43,7 +43,7 @@ private:
 #if defined(KINETISK)
     uint64_t pin;
     static uint64_t isr_pin;
-    uint8_t  irqType[33];
+    uint8_t  irqType[CORE_NUM_INTERRUPT];
     void ( * return_porta_irq ) ( void );
     void ( * return_portb_irq ) ( void );
     void ( * return_portc_irq ) ( void );
@@ -62,7 +62,7 @@ private:
 #elif defined(KINETISL)
     uint32_t pin;
     static uint32_t isr_pin;
-    uint8_t  irqType[23];
+    uint8_t  irqType[CORE_NUM_INTERRUPT];
     void ( * return_porta_irq ) ( void );
     void ( * return_portcd_irq )( void );
     uint32_t return_isr_a_enabled;
@@ -70,7 +70,7 @@ private:
     uint8_t  return_priority_a;
     uint8_t  return_priority_cd;
 #endif
-    volatile uint32_t return_core_pin_config[CORE_NUM_TOTAL_PINS];
+    volatile uint32_t return_core_pin_config[CORE_NUM_INTERRUPT];
 public:
     SnoozeDigital( void ) {
         isDriver = true;

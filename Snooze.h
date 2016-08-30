@@ -48,7 +48,7 @@ public:
     static void idle ( SNOOZE_BLOCK );
     static int source( SNOOZE_BLOCK );
     /* sleep functions */
-    static int sleep    (SNOOZE_BLOCK );
+    static int sleep    ( SNOOZE_BLOCK );
     static int deepSleep( SNOOZE_BLOCK, SLEEP_MODE mode = LLS );
     static int hibernate( SNOOZE_BLOCK,  SLEEP_MODE mode = LLS );
 };

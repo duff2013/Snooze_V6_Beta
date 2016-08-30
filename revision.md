@@ -1,3 +1,6 @@
+><b>Updated (8/30/16 v6.1.0)</b><br>
+* Add INPUT_PULLDOWN code.<br>
+
 ><b>Updated (7/12/16 v6.0.3)</b><br>
 * Update License.<br>
 * Fix core millis count for low power timer wakeup.<br>
