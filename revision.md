@@ -1,3 +1,6 @@
+><b>Updated (8/31/16 v6.1.1)</b><br>
+* Fixed skelton class example.<br>
+
 ><b>Updated (8/30/16 v6.1.0)</b><br>
 * Add INPUT_PULLDOWN code.<br>
 

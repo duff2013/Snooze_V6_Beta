@@ -392,6 +392,7 @@ public:
         SnoozeBlock *p = &configuration;
         p->mode = RUN_LP;
         p->enableDriver( );
+        if ( F_CPU == TWO_MHZ ) return 1;
         start_lptmr_systick( );
         pee_blpi( );
         stop_lptmr_systick( 1999 );
@@ -409,6 +410,7 @@ public:
     uint8_t set_run( SNOOZE_BLOCK ) __attribute__((always_inline, unused)) {
         SnoozeBlock *p = &configuration;
         p->mode = RUN;
+        if ( F_CPU == TWO_MHZ ) return 0;
         exit_vlpr( );
         start_lptmr_systick( );
         blpi_pee( );
