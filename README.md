@@ -1,4 +1,4 @@
-# Snooze v6.1.1 - Beta
+# Snooze v6.2.0 - Beta
 
 ####This is still beta and will be merged once it becomes stable. You must have the latest [Teensyduino](http://www.pjrc.com/teensy/td_download.html) installed.</h4>
 

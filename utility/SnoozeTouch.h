@@ -32,6 +32,7 @@
 #include "Arduino.h"
 #include "SnoozeBlock.h"
 
+#if defined(HAS_KINETIS_TSI) || defined(HAS_KINETIS_TSI_LITE)
 class SnoozeTouch : public SnoozeBlock {
 private:
     virtual void enableDriver( void );
@@ -75,4 +76,20 @@ public:
     }
     void pinMode( int _pin, int thresh );
 };
+#else
+/***********************************************************************************/
+class SnoozeTouch : public SnoozeBlock {
+private:
+    virtual void enableDriver( void )   { }
+    virtual void disableDriver( void )  { }
+    virtual void clearIsrFlags( void )  { }
+    static void isr( void )             { }
+    void ( * return_tsi0_irq ) ( void );
+public:
+    SnoozeTouch( void ) {
+        isDriver = true;
+    }
+    void pinMode( int _pin, int thresh ) { }
+};
+#endif
 #endif /* defined(SnoozeTouch_h) */

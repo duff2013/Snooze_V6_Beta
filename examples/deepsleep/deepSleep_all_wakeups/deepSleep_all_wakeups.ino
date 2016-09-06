@@ -1,7 +1,8 @@
 /***************************************
- * This shows all the wakeups for deepSleep
- * Expect IDD of  around 230uA (Teensy 3.x)
- * and IDD of around 150uA for (Teensy LC).
+ This shows all the wakeups for deepSleep
+ Expect IDD of  around 230uA (Teensy 3.x)
+ and IDD of around 150uA for (Teensy LC).
+ Teensy 3.5/3.6 are yet to be determined.
  ****************************************/
 #include <Snooze.h>
 // Load drivers
@@ -9,64 +10,65 @@ SnoozeDigital digital;
 SnoozeCompare compare;
 SnoozeTimer timer;
 SnoozeTouch touch;
-#ifdef KINETISK
 SnoozeAlarm	alarm;
-#endif
 
 /***********************************************************
- * Teensy 3.5/LC can't use Timer Driver with either Touch or
- * Compare Drivers and Touch can't be used with Compare.
- *
- * Teensy LC does not have a rtc so Alarm driver can't be
- * used as of yet.
+ Teensy 3.6/LC can't use Timer Driver with either Touch or
+ Compare Drivers and Touch can't be used with Compare.
+ 
+ Teensy 3.5 does not touch interface.
+ 
+ Teensy LC does not have a rtc so Alarm driver can't be
+ used as of yet.
+ 
+ Teensy 3.2 can use any Core Drivers together.
  ***********************************************************/
-#ifdef KINETISK
-SnoozeBlock config_teensy35(touch, digital, alarm);
+#if defined(__MK66FX1M0__)
+SnoozeBlock config_teensy36(touch, digital, alarm);
+#elif defined(__MK64FX512__)
+SnoozeBlock config_teensy35(digital, timer, compare);
+#elif defined(__MK20DX256__)
+SnoozeBlock config_teensy32(touch, digital, timer, compare);
+#elif defined(__MKL26Z64__)
+SnoozeBlock config_teensyLC(digital, timer);
 #endif
-SnoozeBlock config_teensyLC(compare, digital, timer);
-/***********************************************************
- * Teensy 3.2 can use any Core Drivers together.
- ***********************************************************/
-SnoozeBlock config_teensy32(touch, compare, digital, timer);
 
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
     /********************************************************
-     * Define digital pins for waking the teensy up. This
-     * combines pinMode and attachInterrupt in one function.
-     *
-     * Teensy 3.x
-     * Digtal pins: 2,4,6,7,9,10,11,13,16,21,22,26,30,33
-     *
-     * Teensy LC
-     * Digtal pins: 2,6,7,9,10,11,16,21,22
+     Define digital pins for waking the teensy up. This
+     combines pinMode and attachInterrupt in one function.
+     
+     Teensy 3.x
+     Digtal pins: 2,4,6,7,9,10,11,13,16,21,22,26,30,33
+     
+     Teensy LC
+     Digtal pins: 2,6,7,9,10,11,16,21,22
      ********************************************************/
     digital.pinMode(21, INPUT_PULLUP, RISING);//pin, mode, type
     digital.pinMode(22, INPUT_PULLUP, RISING);//pin, mode, type
     
     /********************************************************
-     * Teensy 3.x only currently.
-     *
-     * Set RTC alarm wake up in (hours, minutes, seconds).
+     Teensy 3.x only currently.
+     
+     Set RTC alarm wake up in (hours, minutes, seconds).
      ********************************************************/
-#ifdef KINETISK
     alarm.setAlarm(0, 0, 10);// hour, min, sec
-#endif
     /********************************************************
-     * Set Low Power Timer wake up in milliseconds.
+     Set Low Power Timer wake up in milliseconds.
      ********************************************************/
     timer.setTimer(5000);// milliseconds
     
     /********************************************************
-     * Values greater or less than threshold will trigger CMP
-     * wakeup. Threshold value is in volts (0-3.3v) using a 64
-     * tap resistor ladder network at 0.0515625v per tap.
-     *
-     * parameter "type": LOW & FALLING are the same.
-     * parameter "type": HIGH & RISING are the same.
-     *
-     * Teensy 3.x/LC
-     * Compare pins: 11,12
+     Values greater or less than threshold will trigger CMP
+     wakeup. Threshold value is in volts (0-3.3v) using a 64
+     tap resistor ladder network at 0.0515625v per tap.
+     
+     parameter "type": LOW & FALLING are the same.
+     parameter "type": HIGH & RISING are the same.
+     
+     Teensy 3.x/LC
+     Compare pins: 11,12
      ********************************************************/
     // trigger at threshold values greater than 1.65v
     //config.pinMode(11, CMP, HIGH, 1.65);//pin, mode, type, threshold(v)
@@ -74,15 +76,15 @@ void setup() {
     compare.pinMode(11, LOW, 1.65);//pin, mode, type, threshold(v)
     
     /********************************************************
-     * Values greater than threshold will trigger TSI wakeup.
-     * Threshold value is in capacitance. Only one pin can be
-     * used while sleeping.
-     *
-     * Teensy 3.x
-     * Touch Sense pins: 0,1,15,16,17,18,19,22,23,25,32,33
-     *
-     * Teensy LC
-     * Touch Sense pins: 0,1,3,4,15,16,17,18,19,22,23
+     Values greater than threshold will trigger TSI wakeup.
+     Threshold value is in capacitance. Only one pin can be
+     used while sleeping.
+     
+     Teensy 3.x
+     Touch Sense pins: 0,1,15,16,17,18,19,22,23,25,32,33
+     
+     Teensy LC
+     Touch Sense pins: 0,1,3,4,15,16,17,18,19,22,23
      ********************************************************/
     touch.pinMode(0, touchRead(0) + 250); // pin, threshold
 }
@@ -90,10 +92,12 @@ void setup() {
 void loop() {
     int who;
     /********************************************************
-     * feed the sleep function its wakeup parameters. Then go
-     * to deepSleep.
+     feed the sleep function its wakeup parameters. Then go
+     to deepSleep.
      ********************************************************/
 #if defined(__MK66FX1M0__)
+    who = Snooze.deepSleep( config_teensy36 );// return module that woke processor
+#elif defined(__MK64FX512__)
     who = Snooze.deepSleep( config_teensy35 );// return module that woke processor
 #elif defined(__MK20DX256__)
     who = Snooze.deepSleep( config_teensy32 );// return module that woke processor

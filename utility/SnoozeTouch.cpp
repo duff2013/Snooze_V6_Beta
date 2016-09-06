@@ -9,6 +9,8 @@
 #include "SnoozeTouch.h"
 #include "wake.h"
 
+#if defined(HAS_KINETIS_TSI) || defined(HAS_KINETIS_TSI_LITE)
+
 #if defined(KINETISK)
     #define TSI_PEN_LPSP_MASK    0xF0000u
     #define TSI_PEN_LPSP_SHIFT   16
@@ -179,3 +181,6 @@ void SnoozeTouch::isr( void ) {
     TSI0_GENCS = TSI_GENCS_OUTRGF | TSI_GENCS_EOSF;
     if ( mode == VLPW || mode == VLPS ) source = 37;
 }
+#else
+#warning Teensy 3.5 does not support touch sensing.
+#endif

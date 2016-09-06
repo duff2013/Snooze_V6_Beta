@@ -1,3 +1,6 @@
+><b>Updated (9/6/16 v6.2.0)</b><br>
+* Teensy35/36 now complies, need more testing for actual usage.<br>
+
 ><b>Updated (8/31/16 v6.1.1)</b><br>
 * Fixed skelton class example.<br>
 
