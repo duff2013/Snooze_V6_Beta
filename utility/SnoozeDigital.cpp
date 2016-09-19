@@ -123,7 +123,7 @@ void SnoozeDigital::enableDriver( void ) {
                 attachDigitalInterrupt( pinNumber, pin_type );// set pin interrupt
             }
             else {
-                llwu_configure_pin_mask( pinNumber, mode );
+                llwu_configure_pin_mask( pinNumber, pin_mode );
             }
         } else {
             //pinMode( pinNumber, pin_mode );
