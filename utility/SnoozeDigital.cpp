@@ -111,7 +111,7 @@ void SnoozeDigital::enableDriver( void ) {
         config = portConfigRegister( pinNumber );
         return_core_pin_config[pinNumber] = *config;
         
-        if ( pin_mode == INPUT || pin_mode == INPUT_PULLUP  || mode == INPUT_PULLDOWN ) {// setup pin mode/type/interrupt
+        if ( pin_mode == INPUT || pin_mode == INPUT_PULLUP  || pin_mode == INPUT_PULLDOWN ) {// setup pin mode/type/interrupt
             *portModeRegister( pinNumber ) = 0;
             *config = PORT_PCR_MUX( 1 );
             if ( pin_mode == INPUT_PULLUP ) *config = PORT_PCR_MUX( 1 ) | PORT_PCR_PE | PORT_PCR_PS;// pullup
@@ -123,7 +123,7 @@ void SnoozeDigital::enableDriver( void ) {
                 attachDigitalInterrupt( pinNumber, pin_type );// set pin interrupt
             }
             else {
-                llwu_configure_pin_mask( pinNumber, mode );
+                llwu_configure_pin_mask( pinNumber, pin_mode );
             }
         } else {
             //pinMode( pinNumber, pin_mode );
