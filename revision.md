@@ -1,3 +1,6 @@
+><b>Updated (10/19/16 v6.2.1)</b><br>
+* Merge fix for core Digital wakeup from Github user jymoulin.<br>
+
 ><b>Updated (9/6/16 v6.2.0)</b><br>
 * Teensy35/36 now complies, need more testing for actual usage.<br>
 
