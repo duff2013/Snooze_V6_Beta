@@ -49,6 +49,7 @@
 #define LLWU_PIN_RISING     0x01
 #define LLWU_PIN_FALLING    0x02
 #define LLWU_PIN_ANY        0x03
+
 // FILT1 Bit Fields
 #define LLWU_FILT1_FILTSEL_MASK                  0xFu
 #define LLWU_FILT1_FILTSEL_SHIFT                 0

@@ -80,7 +80,6 @@ private:
     SnoozeBlock *next_block[8];
     static uint8_t global_block_count;
     int8_t local_block;
-    
     /********************************************************************************************
      *  Driver list to be called after sleep
      *
@@ -371,7 +370,6 @@ public:
         if ( local_block == -1 ) return;
         SnoozeBlock *p = SnoozeBlock::root_block[local_block];
         reverseList( p, local_block );
-        
     }
     
     /********************************************************************************************
@@ -418,7 +416,6 @@ public:
         p->disableDriver( );
         return 0;
     }
-    
     DMAMEM static SLEEP_MODE mode;
     DMAMEM static int source;
     volatile bool isUsed;

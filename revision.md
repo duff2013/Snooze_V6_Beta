@@ -1,4 +1,9 @@
-><b>Updated (10/19/16 v6.2.1)</b><br>
+><b>Updated (10/18/16 v6.2.2)</b><br>
+* Temp fix for Teensy error when not using RTC Library.<br>
+* Now hibernate and deepsleep work from a isr.<br>
+* Fix warnings from SnoozeCompare driver.<br>
+
+><b>Updated (9/19/16 v6.2.1)</b><br>
 * Merge fix for core Digital wakeup from Github user jymoulin.<br>
 
 ><b>Updated (9/6/16 v6.2.0)</b><br>

@@ -15,6 +15,13 @@ uint64_t SnoozeDigital::isr_pin = 0;
 uint32_t SnoozeDigital::isr_pin = 0;
 #endif
 
+#if defined(__MK20DX128__) || defined(__MK20DX256__)
+#define CORE_NUM_SLEEP_DEEP     34
+#elif defined(__MKL26Z64__)
+#define CORE_NUM_SLEEP_DEEP     27
+#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
+#define CORE_NUM_SLEEP_DEEP     64
+#endif
 /*******************************************************************************
  *  Same as Arduino pinMode + isr trigger type
  *

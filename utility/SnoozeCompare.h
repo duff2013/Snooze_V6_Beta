@@ -59,15 +59,14 @@ private:
 #endif
     volatile uint32_t return_core_pin_config[2];
 public:
-    SnoozeCompare( void )  :
+    SnoozeCompare( void ) {
 #if defined(__MKL26Z64__) || defined(__MK66FX1M0__)
-                            PSR( 0 ), CMR( 0 ), CSR( 0 ),
-                            SIM_SCGC5_clock_active(false ),
+        PSR = CMR = CSR = 0;
+        SIM_SCGC5_clock_active = false;
 #endif
-                            SIM_SCGC4_clock_active( false ),
-                            CR0( 0 ), CR1( 0 ), SCR( 0 ),
-                            FPR( 0 ), MUXCR( 0 ), DACCR( 0 )
-    {
+        SIM_SCGC4_clock_active = false;
+        CR0 = CR1 = SCR = 0;
+        FPR = MUXCR = DACCR = 0;
         isDriver = true;
     }
     void pinMode( int _pin, int _type, float val );
