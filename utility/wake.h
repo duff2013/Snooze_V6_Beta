@@ -150,10 +150,10 @@ extern "C" {
     void llwu_configure_modules_mask( uint8_t module ) {
         llwu_mask_t *mask = &llwuMask;
         if( module & LLWU_LPTMR_MOD )      mask->ME |= LLWU_ME_WUME0;
-#ifdef KINETISK
+//#ifdef KINETISK
         else if ( module & LLWU_RTCA_MOD ) mask->ME |= LLWU_ME_WUME5;
         else if ( module & LLWU_RTCS_MOD ) mask->ME |= LLWU_ME_WUME7;
-#endif
+//#endif
         else if ( module & LLWU_TSI_MOD )  mask->ME |= LLWU_ME_WUME4;
         else if ( module & LLWU_CMP0_MOD ) mask->ME |= LLWU_ME_WUME1;
         else if ( module & LLWU_CMP1_MOD ) mask->ME |= LLWU_ME_WUME2;

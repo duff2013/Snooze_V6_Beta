@@ -1,3 +1,6 @@
+><b>Updated (10/18/16 v6.2.3)</b><br>
+* Temp fix for Teensy LC Timer driver below 50ms.<br>
+
 ><b>Updated (10/18/16 v6.2.2)</b><br>
 * Temp fix for Teensy error when not using RTC Library.<br>
 * Now hibernate and deepsleep work from a isr.<br>

@@ -76,7 +76,10 @@ void SnoozeTimer::enableDriver( void ) {
     CSR = LPTMR0_CSR;
     
     LPTMR0_CSR = 0;
-    if ( period <= 50 ) {
+    LPTMR0_PSR = LPTMR_PSR_PBYP | LPTMR_PSR_PCS( LPTMR_LPO );//LPO Clock
+    LPTMR0_CMR = period;
+    
+    /*if ( period <= 50 ) {
 #if defined(KINETISK)
         OSC_clock_active = true;
         if ( !( OSC0_CR & OSC_ERCLKEN ) ) {
@@ -91,7 +94,7 @@ void SnoozeTimer::enableDriver( void ) {
     } else {
         LPTMR0_PSR = LPTMR_PSR_PBYP | LPTMR_PSR_PCS( LPTMR_LPO );//LPO Clock
         LPTMR0_CMR = period;
-    }
+    }*/
     
     if ( mode == VLPW || mode == VLPS ) {
         return_isr_enabled = NVIC_IS_ENABLED( IRQ_LPTMR );
